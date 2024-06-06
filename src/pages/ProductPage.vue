@@ -3,6 +3,7 @@
     <q-btn
       label="Add product"
       @click="
+        productDetails = {};
         action = 'Add';
         dialogLayout = true;
       "
@@ -12,6 +13,7 @@
     />
     <q-table
       wrap-cells
+      :filter="filter"
       flat
       bordered
       title="Products List"
@@ -19,8 +21,27 @@
       :columns="columns"
       row-key="productCode"
     >
+      <template v-slot:top-right>
+        <q-input
+          borderless
+          dense
+          debounce="300"
+          v-model="filter"
+          placeholder="Search"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </template>
       <template v-slot:body="props">
         <q-tr :props="props" @click="onRowClick(props.row)">
+          <q-td key="image" :props="props">
+            <q-img
+              style="height: auto; width: 54px"
+              :src="`http://localhost:1337${props.row.image}`"
+            />
+          </q-td>
           <q-td key="productCode" :props="props">
             {{ props.row.productCode }}
           </q-td>
@@ -89,19 +110,29 @@
         </q-footer>
 
         <q-page-container>
-          <q-page padding class="q-col-gutter-md">
+          <q-page padding>
+            <q-card align="center" class="q-mb-md" v-if="action === 'Edit'">
+              <q-img
+                style="height: auto; width: 350px"
+                :src="`http://localhost:1337${productDetails.image}`"
+              />
+            </q-card>
+            <q-file outlined v-model="image" label="Image" class="q-mb-md" />
             <q-input
               outlined
+              class="q-mb-md"
               v-model="productDetails.productCode"
               label="Product Code"
             />
             <q-input
               outlined
+              class="q-mb-md"
               v-model="productDetails.productName"
               label="Product Name"
             />
             <q-input
               outlined
+              class="q-mb-md"
               v-model="productDetails.productDescription"
               label="Product Description"
             />
@@ -109,13 +140,20 @@
               outlined
               v-model="productDetails.category"
               label="Category"
+              class="q-mb-md"
             />
             <q-input
               outlined
               v-model="productDetails.quantity"
               label="Quantity"
+              class="q-mb-md"
             />
-            <q-input outlined v-model="productDetails.price" label="Price" />
+            <q-input
+              outlined
+              v-model="productDetails.price"
+              label="Price"
+              class="q-mb-md"
+            />
           </q-page>
         </q-page-container>
       </q-layout>
@@ -126,14 +164,20 @@
 <script setup>
 import { onMounted, ref, getCurrentInstance } from "vue";
 
+import { useQuasar } from "quasar";
+
 defineOptions({
   name: "PosPage",
 });
 
+const $q = useQuasar();
 const { $api } = getCurrentInstance().appContext.config.globalProperties;
 const products = ref([]);
+const filter = ref("");
+const image = ref(null);
 
 const columns = [
+  { name: "image", label: "Image", field: "image", align: "left" },
   {
     name: "productCode",
     required: true,
@@ -176,7 +220,7 @@ const productDetails = ref({
 
 onMounted(() => {
   $api
-    .get("/products")
+    .get("/products?pagination[limit]=5000")
     .then((response) => {
       console.log(response.data.data);
       products.value = response.data.data;
@@ -189,6 +233,20 @@ onMounted(() => {
 const onRowClick = (row) => {};
 
 const addProduct = async (row) => {
+  let formData = new FormData();
+  formData.append("files", image.value);
+
+  const uploadResponse = await $api.post("/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  console.log("uploadResponse", uploadResponse);
+  const uploadedFile = uploadResponse.data[0];
+  const fileUrl = uploadedFile.url;
+
+  productDetails.value.image = fileUrl;
   const payload = {
     data: productDetails.value,
   };
@@ -197,8 +255,30 @@ const addProduct = async (row) => {
   console.log(response.data.data);
   products.value.unshift(response.data.data);
   dialogLayout.value = false;
+  $q.notify({
+    type: "positive",
+    message: "Success!",
+  });
 };
 const editProduct = async () => {
+  let fileUrl = "";
+  if (image.value) {
+    let formData = new FormData();
+    formData.append("files", image.value);
+
+    const uploadResponse = await $api.post("/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log("uploadResponse", uploadResponse);
+    const uploadedFile = uploadResponse.data[0];
+    fileUrl = uploadedFile.url;
+  }
+
+  productDetails.value.image = fileUrl;
+
   const payload = {
     data: productDetails.value,
   };
@@ -209,13 +289,42 @@ const editProduct = async () => {
   );
   console.log(response);
   dialogLayout.value = false;
+  $q.notify({
+    type: "positive",
+    message: "Success!",
+  });
 };
 
-const deleteProduct = async (row) => {
+const deleteNow = async (row) => {
   const response = await $api.delete(`/products/${row.id}`);
   console.log("response", response);
   const index = products.value.findIndex((product) => product.id === row.id);
   products.value.splice(index, 1);
+  $q.notify({
+    type: "positive",
+    message: "Success!",
+  });
+};
+
+const deleteProduct = async (row) => {
+  $q.dialog({
+    title: "Confirm",
+    message: "Are you sure you want to proceed?",
+    ok: {
+      unelevated: true,
+      color: "primary",
+    },
+    cancel: {
+      flat: true,
+      color: "primary",
+    },
+    persistent: true,
+  })
+    .onOk(() => {
+      deleteNow(row);
+    })
+    .onCancel(() => {})
+    .onDismiss(() => {});
 };
 
 const submit = () => {

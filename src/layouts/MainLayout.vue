@@ -4,7 +4,14 @@
       <q-toolbar style="height: 60px">
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
 
-        <q-toolbar-title class="text-center"> PET MATTERS </q-toolbar-title>
+        <q-toolbar-title class="text-center">
+          <q-img
+            class="q-mr-md"
+            style="height: 54px; width: 54px"
+            src="https://pngfre.com/wp-content/uploads/Cat-Paw-Print-10.png"
+          />
+          PET MATTERS
+        </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
@@ -22,6 +29,7 @@
       <q-scroll-area class="fit" :horizontal-thumb-style="{ opacity: 0 }">
         <q-list padding>
           <q-item
+            v-if="user.type === 'admin'"
             exact-active-class="bg-blue-10 text-white"
             exact
             to="/"
@@ -40,6 +48,7 @@
             exact
             to="/pos"
             clickable
+            v-if="user.type === 'admin'"
             v-ripple
           >
             <q-item-section avatar>
@@ -52,6 +61,7 @@
           <q-item
             exact-active-class="bg-blue-10 text-white"
             exact
+            v-if="user.type === 'admin'"
             to="/product"
             clickable
             v-ripple
@@ -69,6 +79,7 @@
             to="/sale"
             clickable
             v-ripple
+            v-if="user.type === 'admin'"
           >
             <q-item-section avatar>
               <q-icon name="payments" />
@@ -116,7 +127,7 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 defineOptions({
   name: "MainLayout",
@@ -128,7 +139,15 @@ const $router = useRouter();
 const drawer = ref(false);
 const miniState = ref(false);
 
+let user = $q.localStorage.getItem("user");
+
 const leftDrawerOpen = ref(false);
+
+onMounted(() => {
+  if (user.type === "user") {
+    $router.push("/my-appointment");
+  }
+});
 
 const logOut = () => {
   $q.dialog({
@@ -147,9 +166,6 @@ const logOut = () => {
     .onOk(() => {
       $q.localStorage.removeItem("user");
       $router.push("/login");
-    })
-    .onOk(() => {
-      // console.log('>>>> secondn OK catcher')
     })
     .onCancel(() => {
       // console.log('>>>> Cancel')

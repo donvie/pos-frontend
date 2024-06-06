@@ -1,7 +1,15 @@
 <template>
   <q-page class="flex flex-center">
-    <q-card class="q-pa-md" style="width: 400px">
-      <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+    <q-card class="q-pa-md" style="width: 400px; border-radius: 15px">
+      <q-form
+        @submit="onSubmit"
+        @reset="onReset"
+        class="q-gutter-md text-center"
+      >
+        <q-img
+          style="height: 144px; width: 144px"
+          src="https://pngfre.com/wp-content/uploads/Cat-Paw-Print-10.png"
+        />
         <q-input
           filled
           type="email"
@@ -82,9 +90,22 @@ const onSubmit = () => {
       $q.localStorage.set("user", user);
 
       $q.loading.hide();
-      $router.push("/");
+      $q.notify({
+        type: "positive",
+        message: "Success!",
+      });
+
+      if (user.type === "admin") {
+        $router.push("/");
+      } else {
+        $router.push("/my-appointment");
+      }
     })
     .catch((error) => {
+      $q.notify({
+        type: "negative",
+        message: "Failed",
+      });
       $q.loading.hide();
       console.log("An error occurred:", error.response);
     });

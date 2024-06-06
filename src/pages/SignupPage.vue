@@ -1,7 +1,15 @@
 <template>
   <q-page padding class="flex flex-center">
-    <q-card class="q-pa-md" style="width: 400px">
-      <q-form @submit="onSubmit" @reset="onReset">
+    <q-card class="q-pa-md" style="width: 400px; border-radius: 15px">
+      <q-form
+        @submit="onSubmit"
+        @reset="onReset"
+        class="q-gutter-md text-center"
+      >
+        <q-img
+          style="height: 144px; width: 144px"
+          src="https://pngfre.com/wp-content/uploads/Cat-Paw-Print-10.png"
+        />
         <q-input
           filled
           v-model="username"
@@ -141,11 +149,10 @@ const address = ref(null);
 const phoneNumber = ref(null);
 const isPwd = ref(true);
 
-const onSubmit = async () => {
+const signUp = async () => {
   $q.loading.show({
     delay: 400, // ms
   });
-
   try {
     const response = await $api.post("/auth/local/register", {
       username: username.value,
@@ -156,6 +163,10 @@ const onSubmit = async () => {
       address: address.value,
       phoneNumber: phoneNumber.value,
       type: "user",
+    });
+    $q.notify({
+      type: "positive",
+      message: "Success!",
     });
 
     $router.push("/login");
@@ -170,6 +181,31 @@ const onSubmit = async () => {
   } finally {
     $q.loading.hide();
   }
+};
+
+const onSubmit = async () => {
+  $q.dialog({
+    title: "Confirm",
+    message: "Are you sure you want to proceed?",
+    ok: {
+      unelevated: true,
+      color: "primary",
+    },
+    cancel: {
+      flat: true,
+      color: "primary",
+    },
+    persistent: true,
+  })
+    .onOk(() => {
+      signUp();
+    })
+    .onCancel(() => {
+      // console.log('>>>> Cancel')
+    })
+    .onDismiss(() => {
+      // console.log('I am triggered on both OK and Cancel')
+    });
 };
 
 const onReset = () => {};

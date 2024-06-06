@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div class="row q-pa-md q-col-gutter-md">
-      <div class="col-4 text-center">
+      <div class="col-xs-12 col-sm-6 col-md-5 text-center">
         <q-date
           v-model="selectedDate"
           mask="YYYY-MM-DD"
@@ -11,7 +11,7 @@
           :options="enableFutureDates"
         />
       </div>
-      <div class="col-4" v-if="selectedDate">
+      <div class="col-xs-12 col-sm-6 col-md-4" v-if="selectedDate">
         <div class="q-mb-md">Select Time:</div>
         <div class="row q-gutter-sm">
           <q-btn
@@ -26,6 +26,7 @@
           />
         </div>
         <q-btn
+          v-if="user.type === 'user'"
           class="q-mt-md"
           color="primary"
           label="Book Appointment"
@@ -44,9 +45,23 @@
       bordered
       title="My appointment"
       :rows="reservations"
+      :filter="filter"
       :columns="columns"
       row-key="productCode"
     >
+      <template v-slot:top-right>
+        <q-input
+          borderless
+          dense
+          debounce="300"
+          v-model="filter"
+          placeholder="Search"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </template>
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="name" :props="props">
@@ -130,10 +145,18 @@
 
         <q-page-container>
           <q-page padding class="q-col-gutter-md">
-            <q-input
+            <q-select
               outlined
-              v-model="appointmentDetails.petType"
+              :options="['CAT', 'DOG']"
               label="Pet Type"
+              v-model="appointmentDetails.petType"
+              :readonly="action === 'view'"
+            />
+            <q-select
+              outlined
+              :options="['SPAY', 'VACCINATION', 'GROOMING']"
+              label="Service"
+              v-model="appointmentDetails.services"
               :readonly="action === 'view'"
             />
             <q-input
@@ -142,20 +165,32 @@
               label="Breed"
               :readonly="action === 'view'"
             />
-            <q-input
-              outlined
-              v-model="appointmentDetails.petAge"
-              label="Pet Age"
-              :readonly="action === 'view'"
-            />
-            <q-input
-              outlined
-              v-model="appointmentDetails.services"
-              label="Services"
-              :readonly="action === 'view'"
-            />
             <q-select
-              v-if="action !== 'book'"
+              outlined
+              :options="[
+                'LESS THAN 1 YEAR OLD',
+                '1-2 YEARS OLD',
+                '2-3 YEARS OLD',
+              ]"
+              label="Pet Age"
+              v-model="appointmentDetails.petAge"
+              :readonly="action === 'view'"
+            />
+            <q-input
+              outlined
+              v-model="appointmentDetails.ownerName"
+              label="Owner name"
+              :readonly="action === 'view'"
+            />
+            <q-input
+              outlined
+              v-model="appointmentDetails.ownerAddress"
+              label="Owner address"
+              :readonly="action === 'view'"
+            />
+
+            <q-select
+              v-if="action !== 'book' && user.type === 'admin'"
               outlined
               :options="['Pending', 'Approved', 'Declined']"
               label="Status"
@@ -180,6 +215,7 @@ const selectedTime = ref("");
 const { $api } = getCurrentInstance().appContext.config.globalProperties;
 const reservations = ref([]);
 let user = $q.localStorage.getItem("user");
+const filter = ref("");
 
 const columns = [
   {
@@ -230,15 +266,14 @@ const appointmentDetails = ref({
 onMounted(() => {
   let url = "";
   if (user.type === "user") {
-    url = `/reservations?&filters[user][id][$eq]=${user.id}&sort=updatedAt:desc&populate=*`;
+    url = `/reservations?pagination[limit]=5000&filters[user][id][$eq]=${user.id}&sort=updatedAt:desc&populate=*`;
   } else {
-    url = `/reservations?&sort=updatedAt:desc&populate=*`;
+    url = `/reservations?pagination[limit]=5000&sort=updatedAt:desc&populate=*`;
   }
 
   $api
     .get(url)
     .then((response) => {
-      console.log("reservations", response.data.data);
       reservations.value = response.data.data;
     })
     .catch((error) => {
@@ -276,11 +311,32 @@ const selectTime = (time) => {
 };
 
 const submit = async () => {
-  if (action.value === "book") {
-    bookNow();
-  } else if (action.value === "view") {
-    updateAppointment();
-  }
+  $q.dialog({
+    title: "Confirm",
+    message: "Are you sure you want to proceed?",
+    ok: {
+      unelevated: true,
+      color: "primary",
+    },
+    cancel: {
+      flat: true,
+      color: "primary",
+    },
+    persistent: true,
+  })
+    .onOk(() => {
+      if (action.value === "book") {
+        bookNow();
+      } else if (action.value === "view") {
+        updateAppointment();
+      }
+    })
+    .onCancel(() => {
+      // console.log('>>>> Cancel')
+    })
+    .onDismiss(() => {
+      // console.log('I am triggered on both OK and Cancel')
+    });
 };
 
 const bookNow = async (row) => {
@@ -290,17 +346,24 @@ const bookNow = async (row) => {
       breed: appointmentDetails.value.breed,
       petAge: appointmentDetails.value.petAge,
       services: appointmentDetails.value.services,
+      ownerName: appointmentDetails.value.ownerName,
+      ownerAddress: appointmentDetails.value.ownerAddress,
       status: "Pending",
       date: selectedDate.value,
       time: selectedTime.value,
-      user: 1,
+      user: user.id,
     },
   };
 
   const response = await $api.post("/reservations?populate=*", payload);
+
   console.log(response.data.data);
   reservations.value.unshift(response.data.data);
   dialogLayout.value = false;
+  $q.notify({
+    type: "positive",
+    message: "Success!",
+  });
 };
 
 const updateAppointment = async () => {
@@ -314,8 +377,12 @@ const updateAppointment = async () => {
     `/reservations/${appointmentDetails.value.id}`,
     payload
   );
-  console.log(response);
+
   dialogLayout.value = false;
+  $q.notify({
+    type: "positive",
+    message: "Success!",
+  });
 };
 
 const fetchTime = (value, reason, details) => {
@@ -323,7 +390,7 @@ const fetchTime = (value, reason, details) => {
   console.log("value", reason);
   console.log("details", details);
   $api
-    .get(`/reservations?filters[date][$eq]=${value}`)
+    .get(`/reservations?pagination[limit]=5000&filters[date][$eq]=${value}`)
     .then((response) => {
       notAvailableTimes.value = response.data.data.map(
         (reservation) => reservation.time

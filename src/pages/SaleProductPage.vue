@@ -8,9 +8,29 @@
       :rows="products"
       :columns="columns"
       row-key="productCode"
+      :filter="filter"
     >
+      <template v-slot:top-right>
+        <q-input
+          borderless
+          dense
+          debounce="300"
+          v-model="filter"
+          placeholder="Search"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </template>
       <template v-slot:body="props">
         <q-tr :props="props" @click="onRowClick(props.row)">
+          <q-td key="image" :props="props">
+            <q-img
+              style="height: auto; width: 54px"
+              :src="`http://localhost:1337${props.row.image}`"
+            />
+          </q-td>
           <q-td key="productCode" :props="props">
             {{ props.row.productCode }}
           </q-td>
@@ -47,8 +67,10 @@ defineOptions({
 
 const { $api } = getCurrentInstance().appContext.config.globalProperties;
 const products = ref([]);
+const filter = ref("");
 
 const columns = [
+  { name: "image", label: "Image", field: "image", align: "left" },
   {
     name: "productCode",
     required: true,
@@ -79,7 +101,7 @@ const columns = [
 
 onMounted(() => {
   $api
-    .get("/sales")
+    .get("/sales?pagination[limit]=5000")
     .then((response) => {
       console.log(response.data.data);
       products.value = response.data.data;
