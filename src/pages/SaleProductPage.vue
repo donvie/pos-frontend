@@ -43,11 +43,14 @@
           <q-td key="category" :props="props">
             {{ props.row.category }}
           </q-td>
-          <q-td key="quantity" :props="props">
-            {{ props.row.quantity }}
+          <q-td key="buy_quantity" :props="props">
+            {{ props.row.buy_quantity }}
           </q-td>
           <q-td key="price" :props="props">
             {{ props.row.price }}
+          </q-td>
+          <q-td key="quantity" :props="props">
+            {{ props.row.price * props.row.buy_quantity }}
           </q-td>
           <!-- <q-td key="_id" :props="props">
             <q-btn label="Add" dense />
@@ -94,8 +97,9 @@ const columns = [
     align: "left",
   },
   { name: "category", label: "Category", field: "category", align: "left" },
-  { name: "quantity", label: "Quantity", field: "quantity", align: "left" },
+  { name: "buy_quantity", label: "Quantity", field: "buy_quantity", align: "left" },
   { name: "price", label: "Price", field: "price", align: "left" },
+  { name: "quantity", label: "Total Price", field: "quantity", align: "left" },
   // { name: "_id", label: "Action", field: "_id", align: "left" },
 ];
 

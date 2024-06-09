@@ -277,7 +277,9 @@ const editProduct = async () => {
     fileUrl = uploadedFile.url;
   }
 
-  productDetails.value.image = fileUrl;
+  if (fileUrl) {
+    productDetails.value.image = fileUrl;
+  }
 
   const payload = {
     data: productDetails.value,
@@ -328,10 +330,24 @@ const deleteProduct = async (row) => {
 };
 
 const submit = () => {
-  if (action.value === "Add") {
-    addProduct();
-  } else if (action.value === "Edit") {
-    editProduct();
+  if ((action.value === 'Add' ? image.value : true)
+    && productDetails.value.productCode
+    && productDetails.value.productName
+    && productDetails.value.productDescription
+    && productDetails.value.category
+    && productDetails.value.quantity
+    && productDetails.value.price
+  ) {
+    if (action.value === "Add") {
+        addProduct();
+    } else if (action.value === "Edit") {
+      editProduct();
+    }
+  } else {
+    $q.notify({
+      type: "negative",
+      message: "All fields are required!",
+    });
   }
 };
 </script>

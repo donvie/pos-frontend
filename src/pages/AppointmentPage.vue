@@ -30,8 +30,10 @@
           class="q-mt-md"
           color="primary"
           label="Book Appointment"
+          :disabled="!selectedTime"
           icon="pending_actions"
           @click="
+            appointmentDetails = {};
             action = 'book';
             dialogLayout = true;
           "
@@ -192,10 +194,25 @@
             <q-select
               v-if="action !== 'book' && user.type === 'admin'"
               outlined
-              :options="['Pending', 'Approved', 'Declined']"
+              :options="['Pending', 'Approved', 'Done', 'Declined']"
               label="Status"
               v-model="appointmentDetails.status"
             />
+
+            <q-select
+              v-if="action !== 'book' && user.type === 'user'"
+              outlined
+              :options="['Cancelled']"
+              label="Status"
+              v-model="appointmentDetails.status"
+            />
+            
+            <!-- <q-input
+              outlined
+              v-if="appointmentDetails.status === 'Cancelled'"
+              v-model="appointmentDetails.remarks"
+              label="Reason to decline"
+            /> -->
           </q-page>
         </q-page-container>
       </q-layout>
@@ -311,32 +328,45 @@ const selectTime = (time) => {
 };
 
 const submit = async () => {
-  $q.dialog({
-    title: "Confirm",
-    message: "Are you sure you want to proceed?",
-    ok: {
-      unelevated: true,
-      color: "primary",
-    },
-    cancel: {
-      flat: true,
-      color: "primary",
-    },
-    persistent: true,
-  })
-    .onOk(() => {
-      if (action.value === "book") {
-        bookNow();
-      } else if (action.value === "view") {
-        updateAppointment();
-      }
+  if (appointmentDetails.value.petType &&
+    appointmentDetails.value.services &&
+    appointmentDetails.value.breed &&
+    appointmentDetails.value.petAge &&
+    appointmentDetails.value.ownerName &&
+    appointmentDetails.value.ownerAddress
+  ) {
+    $q.dialog({
+      title: "Confirm",
+      message: "Are you sure you want to proceed?",
+      ok: {
+        unelevated: true,
+        color: "primary",
+      },
+      cancel: {
+        flat: true,
+        color: "primary",
+      },
+      persistent: true,
     })
-    .onCancel(() => {
-      // console.log('>>>> Cancel')
-    })
-    .onDismiss(() => {
-      // console.log('I am triggered on both OK and Cancel')
+      .onOk(() => {
+        if (action.value === "book") {
+          bookNow();
+        } else if (action.value === "view") {
+          updateAppointment();
+        }
+      })
+      .onCancel(() => {
+        // console.log('>>>> Cancel')
+      })
+      .onDismiss(() => {
+        // console.log('I am triggered on both OK and Cancel')
+      });
+  } else {
+    $q.notify({
+      type: "negative",
+      message: "All fields are required!",
     });
+  }
 };
 
 const bookNow = async (row) => {
@@ -390,7 +420,7 @@ const fetchTime = (value, reason, details) => {
   console.log("value", reason);
   console.log("details", details);
   $api
-    .get(`/reservations?pagination[limit]=5000&filters[date][$eq]=${value}`)
+    .get(`/reservations?pagination[limit]=5000&filters[date][$eq]=${value}}&filters[status][$nin]=["Declined", "Cancelled"]`)
     .then((response) => {
       notAvailableTimes.value = response.data.data.map(
         (reservation) => reservation.time

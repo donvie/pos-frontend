@@ -137,7 +137,7 @@
             <div class="text-h6">
               Total Price:
               {{
-                orders.reduce((a, b) => a + b.price * b.quantity, 0).toFixed(2)
+                orders.reduce((a, b) => a + b.price * b.buy_quantity, 0).toFixed(2)
               }}
             </div>
           </q-card-section>
@@ -146,7 +146,7 @@
               Change:
               {{
                 (
-                  payment - orders.reduce((a, b) => a + b.price * b.quantity, 0)
+                  payment - orders.reduce((a, b) => a + b.price * b.buy_quantity, 0)
                 ).toFixed(2)
               }}
             </div>
@@ -416,11 +416,11 @@ const proceedToSaveSale = async (row) => {
   }
 
   const totalPrice = orders.value
-    .reduce((a, b) => a + b.price * b.quantity, 0)
+    .reduce((a, b) => a + b.price * b.buy_quantity, 0)
     .toFixed(2);
   const change =
-    payment.value - orders.value.reduce((a, b) => a + b.price * b.quantity, 0);
-  generatePdf(orders.value, payment.value, totalPrice, change);
+    payment.value - totalPrice
+  generatePdf(orders.value, payment.value, totalPrice, change.toFixed(2));
 
   orders.value = [];
   payment.value = 0;
