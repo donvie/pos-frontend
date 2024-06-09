@@ -220,7 +220,7 @@ const productDetails = ref({
 
 onMounted(() => {
   $api
-    .get("/products?pagination[limit]=5000")
+    .get("/products?pagination[limit]=5000&sort=updatedAt:desc")
     .then((response) => {
       console.log(response.data.data);
       products.value = response.data.data;

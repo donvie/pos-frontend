@@ -105,7 +105,7 @@ const columns = [
 
 onMounted(() => {
   $api
-    .get("/sales?pagination[limit]=5000")
+    .get("/sales?pagination[limit]=5000&sort=updatedAt:desc")
     .then((response) => {
       console.log(response.data.data);
       products.value = response.data.data;

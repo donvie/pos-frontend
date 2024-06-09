@@ -71,8 +71,8 @@ defineOptions({
 const $q = useQuasar();
 const $router = useRouter();
 
-const email = ref("donvie@gmail.com");
-const password = ref("Pass123$");
+const email = ref("");
+const password = ref("");
 const isPwd = ref(true);
 
 const onSubmit = () => {

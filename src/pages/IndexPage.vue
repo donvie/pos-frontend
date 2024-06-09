@@ -121,7 +121,7 @@
           flat
           bordered
           title="Sold Products"
-          :rows="products"
+          :rows="sales"
           :columns="columns1"
           row-key="productCode"
         >
@@ -158,11 +158,14 @@
               <q-td key="category" :props="props">
                 {{ props.row.category }}
               </q-td>
-              <q-td key="quantity" :props="props">
-                {{ props.row.quantity }}
+              <q-td key="buy_quantity" :props="props">
+                {{ props.row.buy_quantity }}
               </q-td>
               <q-td key="price" :props="props">
                 {{ props.row.price }}
+              </q-td>
+              <q-td key="quantity" :props="props">
+                {{ props.row.price * props.row.buy_quantity }}
               </q-td>
             </q-tr>
           </template>
@@ -244,13 +247,14 @@ const columns1 = [
     align: "left",
   },
   { name: "category", label: "Category", field: "category", align: "left" },
-  { name: "quantity", label: "Quantity", field: "quantity", align: "left" },
+  { name: "buy_quantity", label: "Quantity", field: "buy_quantity", align: "left" },
   { name: "price", label: "Price", field: "price", align: "left" },
+  { name: "quantity", label: "Total Price", field: "quantity", align: "left" },
 ];
 
 onMounted(() => {
   $api
-    .get("/sales?pagination[limit]=5000")
+    .get("/sales?pagination[limit]=5000&&sort=updatedAt:desc")
     .then((response) => {
       sales.value = response.data.data;
       soldProductTotal.value = response.data.data.reduce(
@@ -263,7 +267,7 @@ onMounted(() => {
     });
 
   $api
-    .get("/products?pagination[limit]=5000")
+    .get("/products?pagination[limit]=5000&sort=updatedAt:desc")
     .then((response) => {
       products.value = response.data.data;
       totalProductCount.value = response.data.meta.pagination.total;

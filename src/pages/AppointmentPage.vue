@@ -196,10 +196,12 @@
               outlined
               :options="['Pending', 'Approved', 'Done', 'Declined']"
               label="Status"
+              :readonly="appointmentDetails.status !== 'Pending' && appointmentDetails.status !== 'Approved'"
               v-model="appointmentDetails.status"
             />
 
             <q-select
+              :readonly="appointmentDetails.status !== 'Pending' && appointmentDetails.status !== 'Approved'"
               v-if="action !== 'book' && user.type === 'user'"
               outlined
               :options="['Cancelled']"
@@ -281,6 +283,17 @@ const appointmentDetails = ref({
 });
 
 onMounted(() => {
+  fethcReservation()
+
+  fetchTime(quasarDate.formatDate(Date.now(), "YYYY-MM-DD"));
+});
+
+const enableFutureDates = (date) => {
+  const timeStamp = Date.now();
+  return date >= quasarDate.formatDate(timeStamp, "YYYY/MM/DD");
+};
+
+const fethcReservation = () => {
   let url = "";
   if (user.type === "user") {
     url = `/reservations?pagination[limit]=5000&filters[user][id][$eq]=${user.id}&sort=updatedAt:desc&populate=*`;
@@ -296,14 +309,8 @@ onMounted(() => {
     .catch((error) => {
       console.log("error", error);
     });
+}
 
-  fetchTime(quasarDate.formatDate(Date.now(), "YYYY-MM-DD"));
-});
-
-const enableFutureDates = (date) => {
-  const timeStamp = Date.now();
-  return date >= quasarDate.formatDate(timeStamp, "YYYY/MM/DD");
-};
 const generateAvailableTimes = computed(() => {
   const times = [];
   const startHour = 8;
@@ -409,6 +416,8 @@ const updateAppointment = async () => {
   );
 
   dialogLayout.value = false;
+  fethcReservation()
+  // generateAvailableTimes;
   $q.notify({
     type: "positive",
     message: "Success!",
@@ -420,8 +429,9 @@ const fetchTime = (value, reason, details) => {
   console.log("value", reason);
   console.log("details", details);
   $api
-    .get(`/reservations?pagination[limit]=5000&filters[date][$eq]=${value}}&filters[status][$nin]=["Declined", "Cancelled"]`)
+    .get(`/reservations?pagination[limit]=5000&filters[date][$eq]=${value}&filters[$or][0][status][$eq]=Pending&filters[$or][1][status][$eq]=Approved&&filters[$or][1][status][$eq]=Done`)
     .then((response) => {
+      console.log('ress', response.data)
       notAvailableTimes.value = response.data.data.map(
         (reservation) => reservation.time
       );

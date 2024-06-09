@@ -400,6 +400,7 @@ const lessProduct = async (order) => {
 };
 
 const proceedToSaveSale = async (row) => {
+  console.log('orders.value', orders.value)
   try {
     for (const order of orders.value) {
       const payload = {
