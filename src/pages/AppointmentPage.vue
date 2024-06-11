@@ -67,7 +67,7 @@
       <template v-slot:body="props">
         <q-tr :props="props" @click="action = 'view'; appointmentDetails = props.row;">
           <q-td key="name" :props="props">
-            {{ props.row.user.name }}
+            {{ props.row.user.firsName }} {{ props.row.user.middleName }} {{ props.row.user.lastName }} {{ props.row.user.suffixName }}
           </q-td>
           <q-td key="phoneNumber" :props="props">
             {{ props.row.user.phoneNumber }}

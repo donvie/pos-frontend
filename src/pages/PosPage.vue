@@ -3,37 +3,17 @@
     <div class="row q-col-gutter-md">
       <div class="col-7">
         <div class="q-mb-md">
-          <q-input
-            filled
-            v-model="barcode"
-            label="Scan barcode"
-            ref="barcodeInput"
-            @keyup.enter="handleBarcode"
-          >
+          <q-input filled v-model="barcode" label="Scan barcode" ref="barcodeInput" @update:model-value="handleBarcode">
             <template v-slot:after>
               <q-btn @click="barcodeInput.focus()" round dense flat icon="qr_code_scanner" />
             </template>
           </q-input>
           <div v-if="barcode">Scanned Barcode: {{ barcode }}</div>
         </div>
-        <q-table
-          wrap-cells
-          flat
-          bordered
-          title="Products List"
-          :rows="products"
-          :filter="filter"
-          :columns="columns"
-          row-key="productCode"
-        >
+        <q-table wrap-cells flat bordered title="Products List" :rows="products" :filter="filter" :columns="columns"
+          row-key="productCode">
           <template v-slot:top-right>
-            <q-input
-              borderless
-              dense
-              debounce="300"
-              v-model="filter"
-              placeholder="Search"
-            >
+            <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
               <template v-slot:append>
                 <q-icon name="search" />
               </template>
@@ -43,10 +23,7 @@
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td key="image" :props="props">
-                <q-img
-                  style="height: auto; width: 54px"
-                  :src="`http://localhost:1337${props.row.image}`"
-                />
+                <q-img style="height: auto; width: 54px" :src="`http://localhost:1337${props.row.image}`" />
               </q-td>
               <q-td key="productCode" :props="props">
                 {{ props.row.productCode }}
@@ -67,36 +44,17 @@
                 {{ props.row.price }}
               </q-td>
               <q-td key="_id" :props="props">
-                <q-btn
-                  @click="onRowClick(props.row)"
-                  color="primary"
-                  icon="add_shopping_cart"
-                  dense
-                />
+                <q-btn @click="onRowClick(props.row)" color="primary" icon="add_shopping_cart" dense />
               </q-td>
             </q-tr>
           </template>
         </q-table>
       </div>
       <div class="col-5">
-        <q-table
-          wrap-cells
-          flat
-          bordered
-          title="Order List"
-          :rows="orders"
-          :filter="filter1"
-          :columns="columns1"
-          row-key="productCode"
-        >
+        <q-table wrap-cells flat bordered title="Order List" :rows="orders" :filter="filter1" :columns="columns1"
+          row-key="productCode">
           <template v-slot:top-right>
-            <q-input
-              borderless
-              dense
-              debounce="300"
-              v-model="filter1"
-              placeholder="Search"
-            >
+            <q-input borderless dense debounce="300" v-model="filter1" placeholder="Search">
               <template v-slot:append>
                 <q-icon name="search" />
               </template>
@@ -106,10 +64,7 @@
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td key="image" :props="props">
-                <q-img
-                  style="height: auto; width: 54px"
-                  :src="`http://localhost:1337${props.row.image}`"
-                />
+                <q-img style="height: auto; width: 54px" :src="`http://localhost:1337${props.row.image}`" />
               </q-td>
               <q-td key="productCode" :props="props">
                 {{ props.row.productCode }}
@@ -130,14 +85,7 @@
                 {{ props.row.price }}
               </q-td>
               <q-td key="_id" :props="props">
-                <q-btn
-                  @click="removeItem(props.row)"
-                  color="red"
-                  flat
-                  round
-                  icon="delete"
-                  dense
-                />
+                <q-btn @click="removeItem(props.row)" color="red" flat round icon="delete" dense />
               </q-td>
             </q-tr>
           </template>
@@ -157,30 +105,18 @@
           </q-card-section>
           <q-card-section class="q-py-xs">
             <div class="text-h6">
-              Change: {{payment === 0 ? 0 : (payment - orders.reduce((a, b) => a + b.price * b.buy_quantity, 0)).toFixed(2)}}
+              Change: {{ payment === 0 ? 0 : (payment - orders.reduce((a, b) => a + b.price * b.buy_quantity,
+                0)).toFixed(2) }}
             </div>
           </q-card-section>
 
           <q-card-actions align="between">
-            <q-btn
-              :disable="orders.length === 0"
-              @click="alert = true"
-              unelevated
-              label="Confirm buy"
-              color="primary"
-              icon="save"
-            />
-            <q-btn
-              :disable="orders.length === 0"
-              color="primary"
-              @click="
-                payment = 0;
-                orders = [];
-              "
-              icon="restart_alt"
-              label="Clear"
-              outline
-            />
+            <q-btn :disable="orders.length === 0" @click="alert = true" unelevated label="Confirm buy" color="primary"
+              icon="save" />
+            <q-btn :disable="orders.length === 0" color="primary" @click="
+              payment = 0;
+            orders = [];
+            " icon="restart_alt" label="Clear" outline />
           </q-card-actions>
         </q-card>
       </div>
@@ -193,15 +129,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-table
-            wrap-cells
-            flat
-            bordered
-            :rows="orders"
-            :filter="filter1"
-            :columns="columns2"
-            row-key="productCode"
-          >
+          <q-table wrap-cells flat bordered :rows="orders" :filter="filter1" :columns="columns2" row-key="productCode">
             <!-- <template v-slot:top-right>
               <q-input
                 borderless
@@ -219,10 +147,7 @@
             <template v-slot:body="props">
               <q-tr :props="props">
                 <q-td key="image" :props="props">
-                  <q-img
-                    style="height: auto; width: 54px"
-                    :src="`http://localhost:1337${props.row.image}`"
-                  />
+                  <q-img style="height: auto; width: 54px" :src="`http://localhost:1337${props.row.image}`" />
                 </q-td>
                 <q-td key="productCode" :props="props">
                   {{ props.row.productCode }}
@@ -237,7 +162,7 @@
                   {{ props.row.category }}
                 </q-td>
                 <q-td key="quantity" :props="props">
-                  {{props.row.buy_quantity}}
+                  {{ props.row.buy_quantity }}
                 </q-td>
                 <q-td key="price" :props="props">
                   {{ props.row.price }}
@@ -254,7 +179,7 @@
             {{ payment }}
           </div>
         </q-card-section>
-        <q-card-section  class="q-py-none">
+        <q-card-section class="q-py-none">
           <div class="text-h6">
             Total Price:
             {{
@@ -264,12 +189,13 @@
         </q-card-section>
         <q-card-section class="q-py-none">
           <div class="text-h6">
-            Change: {{payment === 0 ? 0 : (payment - orders.reduce((a, b) => a + b.price * b.buy_quantity, 0)).toFixed(2)}}
+            Change: {{ payment === 0 ? 0 : (payment - orders.reduce((a, b) => a + b.price * b.buy_quantity,
+              0)).toFixed(2) }}
           </div>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn  label="Proceed" @click="saveToSale()" color="primary" />
+          <q-btn label="Proceed" @click="saveToSale()" color="primary" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -499,14 +425,19 @@ const generatePdf = (products, cashPayment, totalPrice, change) => {
 };
 
 const handleBarcode = () => {
-  console.log('Barcode scanned:', barcode.value);
-  
-  const findIndex = products.value.findIndex(product => product.productCode === barcode.value)
-  console.log('findIndexfindIndex', products.value[findIndex])
-  orders.value.push(products.value[findIndex]);
-  // Clear the input after handling the barcode
-  barcode.value = '';
-  barcodeInput.value.focus();
+  setTimeout(() => {
+    console.log('Barcode scanned:', barcode.value);
+    if (barcode.value) {
+      const findIndex = products.value.findIndex(product => product.productCode === barcode.value)
+      console.log('findIndexfindIndex', products.value[findIndex])
+      let order = products.value[findIndex]
+      order.buy_quantity = 1;
+      orders.value.push(order);
+      // Clear the input after handling the barcode
+      barcode.value = '';
+      barcodeInput.value.focus();
+    }
+  }, 300);
 };
 
 const fetchProducts = () => {

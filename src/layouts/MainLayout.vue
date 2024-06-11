@@ -114,11 +114,11 @@
             <q-item-section avatar>
               <q-icon v-if="!miniState" name="event_available" />
               <q-btn v-if="miniState" flat dense icon="event_available">
-                <q-badge color="red" floating>{{reservationNewCount}}</q-badge>
+                <q-badge v-if="user.type === 'admin'" color="red" floating>{{reservationNewCount}}</q-badge>
               </q-btn>
             </q-item-section>
 
-            <q-item-section><div>My Appointment <span class="text-weight-bold text-blue">({{reservationNewCount}})</span></div></q-item-section>
+            <q-item-section><div>My Appointment <span class="text-weight-bold text-blue" v-if="user.type === 'admin'">({{reservationNewCount}})</span></div></q-item-section>
           </q-item>
 
           <q-item
