@@ -48,7 +48,7 @@
             exact
             to="/pos"
             clickable
-            v-if="user.type === 'admin'"
+            v-if="user.type === 'cashier'"
             v-ripple
           >
             <q-item-section avatar>
@@ -91,15 +91,34 @@
           <q-item
             exact-active-class="bg-blue-10 text-white"
             exact
+            to="/sales-report"
+            clickable
+            v-ripple
+            v-if="user.type === 'admin'"
+          >
+            <q-item-section avatar>
+              <q-icon name="grid_view" />
+            </q-item-section>
+
+            <q-item-section>Sales Report</q-item-section>
+          </q-item>
+
+          <q-item
+            exact-active-class="bg-blue-10 text-white"
+            exact
             to="/my-appointment"
             clickable
+            v-if="user.type !== 'cashier'"
             v-ripple
           >
             <q-item-section avatar>
-              <q-icon name="event_available" />
+              <q-icon v-if="!miniState" name="event_available" />
+              <q-btn v-if="miniState" flat dense icon="event_available">
+                <q-badge color="red" floating>{{reservationNewCount}}</q-badge>
+              </q-btn>
             </q-item-section>
 
-            <q-item-section>My Appointment</q-item-section>
+            <q-item-section><div>My Appointment <span class="text-weight-bold text-blue">({{reservationNewCount}})</span></div></q-item-section>
           </q-item>
 
           <q-item
@@ -127,27 +146,52 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import { ref, onMounted } from "vue";
+import { ref, computed, getCurrentInstance, onMounted } from "vue";
 
 defineOptions({
   name: "MainLayout",
 });
 
+const { $api } = getCurrentInstance().appContext.config.globalProperties;
 const $q = useQuasar();
 const $router = useRouter();
 
 const drawer = ref(false);
-const miniState = ref(false);
+const miniState = ref(true);
+const reservationNewCount = ref(0);
 
 let user = $q.localStorage.getItem("user");
 
 const leftDrawerOpen = ref(false);
 
 onMounted(() => {
+  fethcReservation()
+
   if (user.type === "user") {
     $router.push("/my-appointment");
   }
+  if (user.type === "admin") {
+    $router.push("/");
+  }
+  if (user.type === "cashier") {
+    $router.push("/pos");
+  }
 });
+
+const fethcReservation = () => {
+  let url = `/reservations?&filters[isViewed][$eq]=false&pagination[limit]=5000&sort=updatedAt:desc&populate=*`;
+
+  $api
+    .get(url)
+    .then((response) => {
+      reservationNewCount.value = response.data.meta.pagination.total
+      console.log('dads', response)
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+}
+
 
 const logOut = () => {
   $q.dialog({

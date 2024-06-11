@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <div class="row q-pa-md q-col-gutter-md">
+    <div class="row q-pa-md q-col-gutter-md" v-if="user.type === 'user'">
       <div class="col-xs-12 col-sm-6 col-md-5 text-center">
         <q-date
           v-model="selectedDate"
@@ -12,7 +12,7 @@
         />
       </div>
       <div class="col-xs-12 col-sm-6 col-md-4" v-if="selectedDate">
-        <div class="q-mb-md">Select Time:</div>
+        <div class="q-mb-md"  v-if="user.type === 'user'">Select Time:</div>
         <div class="row q-gutter-sm">
           <q-btn
             :disable="notAvailableTimes.includes(time)"
@@ -65,7 +65,7 @@
         </q-input>
       </template>
       <template v-slot:body="props">
-        <q-tr :props="props">
+        <q-tr :props="props" @click="action = 'view'; appointmentDetails = props.row;">
           <q-td key="name" :props="props">
             {{ props.row.user.name }}
           </q-td>
@@ -97,9 +97,29 @@
             {{ props.row.time }}
           </q-td>
           <q-td key="status" :props="props">
-            {{ props.row.status }}
+            <q-select
+              dense
+              @update:model-value="submit1"
+              v-if="action !== 'book' && user.type === 'admin'"
+              outlined
+              :options="['Pending', 'Approved', 'Done', 'Declined']"
+              label="Status"
+              :readonly="props.row.status !== 'Pending' && props.row.status !== 'Approved'"
+              v-model="props.row.status"
+            />
+
+            <q-select
+              @update:model-value="submit1"
+              dense
+              :readonly="props.row.status !== 'Pending' && props.row.status !== 'Approved'"
+              v-if="action !== 'book' && user.type === 'user'"
+              outlined
+              :options="['Cancelled']"
+              label="Status"
+              v-model="props.row.status"
+            />
           </q-td>
-          <q-td key="_id" :props="props">
+          <!-- <q-td key="_id" :props="props">
             <q-btn
               color="primary"
               @click="
@@ -111,7 +131,7 @@
               icon="visibility"
               dense
             />
-          </q-td>
+          </q-td> -->
         </q-tr>
       </template>
     </q-table>
@@ -154,6 +174,12 @@
               v-model="appointmentDetails.petType"
               :readonly="action === 'view'"
             />
+            <q-input
+              outlined
+              v-model="appointmentDetails.petName"
+              label="Pet Name"
+              :readonly="action === 'view'"
+            />
             <q-select
               outlined
               :options="['SPAY', 'VACCINATION', 'GROOMING']"
@@ -167,18 +193,13 @@
               label="Breed"
               :readonly="action === 'view'"
             />
-            <q-select
+            <q-input
               outlined
-              :options="[
-                'LESS THAN 1 YEAR OLD',
-                '1-2 YEARS OLD',
-                '2-3 YEARS OLD',
-              ]"
               label="Pet Age"
               v-model="appointmentDetails.petAge"
               :readonly="action === 'view'"
             />
-            <q-input
+            <!-- <q-input
               outlined
               v-model="appointmentDetails.ownerName"
               label="Owner name"
@@ -189,7 +210,7 @@
               v-model="appointmentDetails.ownerAddress"
               label="Owner address"
               :readonly="action === 'view'"
-            />
+            /> -->
 
             <q-select
               v-if="action !== 'book' && user.type === 'admin'"
@@ -267,7 +288,7 @@ const columns = [
   { name: "date", label: "Date", field: "date", align: "left" },
   { name: "time", label: "Time", field: "time", align: "left" },
   { name: "status", label: "Status", field: "status", align: "left" },
-  { name: "_id", label: "Action", field: "_id", align: "left" },
+  // { name: "_id", label: "Action", field: "_id", align: "left" },
 ];
 
 const dialogLayout = ref(false);
@@ -276,6 +297,7 @@ const notAvailableTimes = ref([]);
 
 const appointmentDetails = ref({
   petType: "",
+  petName: "",
   breed: "",
   petAge: "",
   services: "",
@@ -334,13 +356,39 @@ const selectTime = (time) => {
   selectedTime.value = time;
 };
 
-const submit = async () => {
+const submit1 = () => {
+  $q.dialog({
+    title: "Confirm",
+    message: "Are you sure you want to proceed?",
+    ok: {
+      unelevated: true,
+      color: "primary",
+    },
+    cancel: {
+      flat: true,
+      color: "primary",
+    },
+    persistent: true,
+  })
+    .onOk(() => {
+      updateAppointment();
+    })
+    .onCancel(() => {
+      // console.log('>>>> Cancel')
+    })
+    .onDismiss(() => {
+      // console.log('I am triggered on both OK and Cancel')
+    });
+};
+
+const submit = () => {
   if (appointmentDetails.value.petType &&
     appointmentDetails.value.services &&
+    appointmentDetails.value.petName &&
     appointmentDetails.value.breed &&
-    appointmentDetails.value.petAge &&
-    appointmentDetails.value.ownerName &&
-    appointmentDetails.value.ownerAddress
+    appointmentDetails.value.petAge
+    // appointmentDetails.value.ownerName &&
+    // appointmentDetails.value.ownerAddress
   ) {
     $q.dialog({
       title: "Confirm",
@@ -382,12 +430,14 @@ const bookNow = async (row) => {
       petType: appointmentDetails.value.petType,
       breed: appointmentDetails.value.breed,
       petAge: appointmentDetails.value.petAge,
+      petName: appointmentDetails.value.petName,
       services: appointmentDetails.value.services,
-      ownerName: appointmentDetails.value.ownerName,
-      ownerAddress: appointmentDetails.value.ownerAddress,
+      // ownerName: appointmentDetails.value.ownerName,
+      // ownerAddress: appointmentDetails.value.ownerAddress,
       status: "Pending",
       date: selectedDate.value,
       time: selectedTime.value,
+      isViewed: false,
       user: user.id,
     },
   };
@@ -404,11 +454,24 @@ const bookNow = async (row) => {
 };
 
 const updateAppointment = async () => {
-  const payload = {
-    data: {
-      status: appointmentDetails.value.status,
-    },
-  };
+  let payload = {}
+
+  if (user.type === 'admin') {
+    payload = {
+      data: {
+        isViewed: true,
+        status: appointmentDetails.value.status,
+      },
+    };
+  }
+
+  if (user.type === 'user') {
+    payload = {
+      data: {
+        status: appointmentDetails.value.status,
+      },
+    };
+  }
 
   const response = await $api.put(
     `/reservations/${appointmentDetails.value.id}`,
@@ -416,7 +479,7 @@ const updateAppointment = async () => {
   );
 
   dialogLayout.value = false;
-  fethcReservation()
+  // fethcReservation()
   // generateAvailableTimes;
   $q.notify({
     type: "positive",

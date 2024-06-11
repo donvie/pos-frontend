@@ -71,8 +71,8 @@ defineOptions({
 const $q = useQuasar();
 const $router = useRouter();
 
-const email = ref("");
-const password = ref("");
+const email = ref("donvie@gmail.com");
+const password = ref("Pass123$");
 const isPwd = ref(true);
 
 const onSubmit = () => {
@@ -97,8 +97,10 @@ const onSubmit = () => {
 
       if (user.type === "admin") {
         $router.push("/");
-      } else {
+      } else if (user.type === 'user') {
         $router.push("/my-appointment");
+      } else if (user.type === 'cashier') {
+        $router.push("/pos");
       }
     })
     .catch((error) => {

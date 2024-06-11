@@ -17,7 +17,10 @@
     "axios": "^1.2.1",
     "core-js": "^3.31.1",
     "pdfmake": "^0.2.10",
+    "phil-reg-prov-mun-brgy": "^1.1.0",
+    "philippine-location-json-for-geer": "^1.1.11",
     "pinia": "^2.0.11",
+    "quagga": "^0.12.1",
     "quasar": "^2.8.0",
     "vue": "^3.4.18",
     "vue-router": "^4.0.12"

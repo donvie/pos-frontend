@@ -2,6 +2,20 @@
   <q-page padding>
     <div class="row q-col-gutter-md">
       <div class="col-7">
+        <div class="q-mb-md">
+          <q-input
+            filled
+            v-model="barcode"
+            label="Scan barcode"
+            ref="barcodeInput"
+            @keyup.enter="handleBarcode"
+          >
+            <template v-slot:after>
+              <q-btn @click="barcodeInput.focus()" round dense flat icon="qr_code_scanner" />
+            </template>
+          </q-input>
+          <div v-if="barcode">Scanned Barcode: {{ barcode }}</div>
+        </div>
         <q-table
           wrap-cells
           flat
@@ -143,19 +157,14 @@
           </q-card-section>
           <q-card-section class="q-py-xs">
             <div class="text-h6">
-              Change:
-              {{
-                (
-                  payment - orders.reduce((a, b) => a + b.price * b.buy_quantity, 0)
-                ).toFixed(2)
-              }}
+              Change: {{payment === 0 ? 0 : (payment - orders.reduce((a, b) => a + b.price * b.buy_quantity, 0)).toFixed(2)}}
             </div>
           </q-card-section>
 
           <q-card-actions align="between">
             <q-btn
               :disable="orders.length === 0"
-              @click="saveToSale()"
+              @click="alert = true"
               unelevated
               label="Confirm buy"
               color="primary"
@@ -176,6 +185,95 @@
         </q-card>
       </div>
     </div>
+
+    <q-dialog v-model="alert">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Preview Products</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-table
+            wrap-cells
+            flat
+            bordered
+            :rows="orders"
+            :filter="filter1"
+            :columns="columns2"
+            row-key="productCode"
+          >
+            <!-- <template v-slot:top-right>
+              <q-input
+                borderless
+                dense
+                debounce="300"
+                v-model="filter1"
+                placeholder="Search"
+              >
+                <template v-slot:append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </template> -->
+
+            <template v-slot:body="props">
+              <q-tr :props="props">
+                <q-td key="image" :props="props">
+                  <q-img
+                    style="height: auto; width: 54px"
+                    :src="`http://localhost:1337${props.row.image}`"
+                  />
+                </q-td>
+                <q-td key="productCode" :props="props">
+                  {{ props.row.productCode }}
+                </q-td>
+                <q-td key="productName" :props="props">
+                  {{ props.row.productName }}
+                </q-td>
+                <q-td key="productDescription" :props="props">
+                  {{ props.row.productDescription }}
+                </q-td>
+                <q-td key="category" :props="props">
+                  {{ props.row.category }}
+                </q-td>
+                <q-td key="quantity" :props="props">
+                  {{props.row.buy_quantity}}
+                </q-td>
+                <q-td key="price" :props="props">
+                  {{ props.row.price }}
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+
+        </q-card-section>
+
+        <q-card-section class="q-py-none">
+          <div class="text-h6">
+            Payment:
+            {{ payment }}
+          </div>
+        </q-card-section>
+        <q-card-section  class="q-py-none">
+          <div class="text-h6">
+            Total Price:
+            {{
+              orders.reduce((a, b) => a + b.price * b.buy_quantity, 0).toFixed(2)
+            }}
+          </div>
+        </q-card-section>
+        <q-card-section class="q-py-none">
+          <div class="text-h6">
+            Change: {{payment === 0 ? 0 : (payment - orders.reduce((a, b) => a + b.price * b.buy_quantity, 0)).toFixed(2)}}
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn  label="Proceed" @click="saveToSale()" color="primary" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-page>
 </template>
 
@@ -198,6 +296,9 @@ const $q = useQuasar();
 const payment = ref(0);
 const filter = ref("");
 const filter1 = ref("");
+const alert = ref(false);
+const barcode = ref('');
+const barcodeInput = ref(null);
 
 const columns = [
   { name: "image", label: "Image", field: "image", align: "left" },
@@ -259,7 +360,38 @@ const columns1 = [
   { name: "_id", label: "Action", field: "_id", align: "left" },
 ];
 
+const columns2 = [
+  { name: "image", label: "Image", field: "image", align: "left" },
+  {
+    name: "productCode",
+    required: true,
+    label: "Product Code",
+    sortable: true,
+    align: "left",
+  },
+  {
+    name: "productName",
+    align: "productName",
+    label: "Product Name",
+    field: "productName",
+    sortable: true,
+    align: "left",
+  },
+  // {
+  //   name: "productDescription",
+  //   label: "Product Description",
+  //   field: "productDescription",
+  //   sortable: true,
+  //   align: "left",
+  // },
+  // { name: "category", label: "Category", field: "category", align: "left" },
+  { name: "quantity", label: "Quantity", field: "quantity", align: "left" },
+  { name: "price", label: "Price", field: "price", align: "left" },
+  // { name: "_id", label: "Action", field: "_id", align: "left" },
+];
+
 onMounted(() => {
+  barcodeInput.value.focus();
   fetchProducts();
 });
 
@@ -366,6 +498,17 @@ const generatePdf = (products, cashPayment, totalPrice, change) => {
   pdfMake.createPdf(docDefinition).download("receipt.pdf");
 };
 
+const handleBarcode = () => {
+  console.log('Barcode scanned:', barcode.value);
+  
+  const findIndex = products.value.findIndex(product => product.productCode === barcode.value)
+  console.log('findIndexfindIndex', products.value[findIndex])
+  orders.value.push(products.value[findIndex]);
+  // Clear the input after handling the barcode
+  barcode.value = '';
+  barcodeInput.value.focus();
+};
+
 const fetchProducts = () => {
   $api
     .get("/products?pagination[limit]=5000&sort=updatedAt:desc")
@@ -421,10 +564,11 @@ const proceedToSaveSale = async (row) => {
     .toFixed(2);
   const change =
     payment.value - totalPrice
-  generatePdf(orders.value, payment.value, totalPrice, change.toFixed(2));
+  // generatePdf(orders.value, payment.value, totalPrice, change.toFixed(2));
 
   orders.value = [];
   payment.value = 0;
+  alert.value = false
   $q.notify({
     type: "positive",
     message: "Success!",

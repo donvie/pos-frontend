@@ -1,119 +1,175 @@
 <template>
   <q-page padding class="flex flex-center">
-    <q-card class="q-pa-md" style="width: 400px; border-radius: 15px">
+    <q-card class="q-pa-md" style="width: 70%; border-radius: 15px">
       <q-form
         @submit="onSubmit"
         @reset="onReset"
-        class="q-gutter-md text-center"
+        class="text-center q-pa-xl"
       >
         <q-img
+          class="q-mb-xl"
           style="height: 144px; width: 144px"
           src="https://pngfre.com/wp-content/uploads/Cat-Paw-Print-10.png"
         />
-        <q-input
-          filled
-          v-model="username"
-          class="q-mb-md"
-          label="Username"
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
-        />
-
-        <q-input
-          filled
-          v-model="name"
-          class="q-mb-md"
-          label="Name"
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
-        />
-
-        <q-select
-          filled
-          class="q-mb-md"
-          v-model="gender"
-          :options="['Male', 'Female']"
-          label="Gender"
-          :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
-        />
-
-        <q-input
-          filled
-          v-model="address"
-          class="q-mb-md"
-          label="Address"
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
-        />
-
-        <q-input
-          filled
-          type="email"
-          v-model="email"
-          label="Email"
-          class="q-mb-md"
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Email cannot be empty']"
-        />
-
-        <q-input
-          filled
-          class="q-mb-md"
-          mask="(+63)##########"
-          fill-mask
-          v-model="phoneNumber"
-          :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
-          label="Phone Number"
-        />
-
-        <q-input
-          label="Password"
-          v-model="password"
-          class="q-mb-md"
-          filled
-          :type="isPwd ? 'password' : 'text'"
-          :rules="[
-            (val) => (val && val.length > 0) || 'Password cannot be empty',
-          ]"
-        >
-          <template v-slot:append>
-            <q-icon
-              :name="isPwd ? 'visibility_off' : 'visibility'"
-              class="cursor-pointer"
-              @click="isPwd = !isPwd"
+        <div class="row q-col-gutter-md">
+          <!-- <div class="col-3">
+            <q-input
+              filled
+              v-model="username"
+              class="q-mb-md"
+              label="Username"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
             />
-          </template>
-        </q-input>
-
-        <q-input
-          class="q-mb-md"
-          label="Confirm Password"
-          v-model="confirmPassword"
-          filled
-          :type="isPwd ? 'password' : 'text'"
-          :rules="[(val) => (val && val.length > 0) || 'Email cannot be empty']"
-        >
-          <template v-slot:append>
-            <q-icon
-              :name="isPwd ? 'visibility_off' : 'visibility'"
-              class="cursor-pointer"
-              @click="isPwd = !isPwd"
+          </div> -->
+          <div class="col-3">
+            <q-input
+              filled
+              v-model="firstName"
+              class="q-mb-md"
+              label="First Name"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
             />
-          </template>
-        </q-input>
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              v-model="middleName"
+              class="q-mb-md"
+              label="Middle Name"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              v-model="lastName"
+              class="q-mb-md"
+              label="Last Name"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              v-model="suffixName"
+              class="q-mb-md"
+              label="Suffix Name"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
+            />
+          </div>
+          <div class="col-3">
+            <q-select :rules="[(val) => (val)  || 'Field cannot be empty']" option-label="name" filled v-model="region" :options="phil.regions" label="Region" />
+          </div>
+          <div class="col-3">
+            <q-select :rules="[(val) => (val) || 'Field cannot be empty']" option-label="name" filled v-model="province" :options="phil.getProvincesByRegion(region?.reg_code)" label="Province" />
+          </div>
+          <div class="col-3">
+            <q-select :rules="[(val) => (val) || 'Field cannot be empty']" option-label="name" filled v-model="cityMunicipality" :options="phil.getCityMunByProvince(province?.prov_code)" label="City/Municipality" />
+          </div>
+          <div class="col-3">
+            <q-select :rules="[(val) => (val) || 'Field cannot be empty']" option-label="name" filled v-model="barangay" :options="phil.getBarangayByMun(cityMunicipality?.mun_code)" label="Barangay" />
+          </div>
+          <div class="col-3">
+            <q-select
+              filled
+              class="q-mb-md"
+              v-model="gender"
+              :options="['Male', 'Female']"
+              label="Gender"
+              :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              v-model="address"
+              class="q-mb-md"
+              label="Address"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              type="email"
+              v-model="email"
+              label="Email"
+              class="q-mb-md"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Email cannot be empty']"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              class="q-mb-md"
+              mask="(+63)##########"
+              fill-mask
+              v-model="phoneNumber"
+              :rules="[(val) => (val && val.length > 0) || 'Field cannot be empty']"
+              label="Phone Number"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              label="Password"
+              v-model="password"
+              class="q-mb-md"
+              filled
+              :type="isPwd ? 'password' : 'text'"
+              :rules="[
+                (val) => (val && val.length > 0) || 'Password cannot be empty',
+              ]"
+            >
+              <template v-slot:append>
+                <q-icon
+                  :name="isPwd ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer"
+                  @click="isPwd = !isPwd"
+                />
+              </template>
+            </q-input>
 
-        <q-card-actions>
+          </div>
+          <div class="col-3">
+            <q-input
+              class="q-mb-md"
+              label="Confirm Password"
+              v-model="confirmPassword"
+              filled
+              :type="isPwd ? 'password' : 'text'"
+              :rules="[(val) => (val && val.length > 0) || 'Email cannot be empty']"
+            >
+              <template v-slot:append>
+                <q-icon
+                  :name="isPwd ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer"
+                  @click="isPwd = !isPwd"
+                />
+              </template>
+            </q-input>
+          </div>
+        </div>
+
+        <q-card-actions align="center" vertical>
           <q-btn
+            style="width: 30%"
             color="primary"
-            class="full-width q-mb-md"
+            class="q-mb-md"
             type="submit"
             label="Submit"
           />
           <q-btn
-            class="full-width"
             type="reset"
             to="/login"
             flat
+            style="width: 30%"
             color="primary"
             label="Back to login"
           />
@@ -127,6 +183,7 @@
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import { ref, getCurrentInstance } from "vue";
+import phil from 'phil-reg-prov-mun-brgy'
 
 import { uid } from "quasar";
 
@@ -134,12 +191,21 @@ defineOptions({
   name: "IndexPage",
 });
 
+console.log(phil);
+
 const { $api } = getCurrentInstance().appContext.config.globalProperties;
 
 const $q = useQuasar();
 const $router = useRouter();
 
-const name = ref(null);
+const firstName = ref(null);
+const middleName = ref(null);
+const lastName = ref(null);
+const suffixName = ref(null);
+const region = ref();
+const province = ref(null);
+const cityMunicipality = ref(null)
+const barangay = ref(null);;
 const username = ref(null);
 const gender = ref(null);
 const email = ref(null);
@@ -155,10 +221,17 @@ const signUp = async () => {
   });
   try {
     const response = await $api.post("/auth/local/register", {
-      username: username.value,
+      username: email.value,
       email: email.value,
       password: password.value,
-      name: name.value,
+      firstName: firstName.value,
+      middleName: middleName.value,
+      lastName: lastName.value,
+      suffixName: suffixName.value,
+      region: region.value,
+      province: province.value,
+      cityMunicipality: cityMunicipality.value,
+      barangay: barangay.value,
       gender: gender.value,
       address: address.value,
       phoneNumber: phoneNumber.value,

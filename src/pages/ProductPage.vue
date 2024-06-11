@@ -117,13 +117,27 @@
                 :src="`http://localhost:1337${productDetails.image}`"
               />
             </q-card>
-            <q-file outlined v-model="image" label="Image" class="q-mb-md" />
+            <q-uploader
+              label="Image"
+              @added="handleAdded"
+              class="q-mb-md"
+              style="width: 100%"
+              accept=".jpg, image/*"
+              hide-upload-btn
+            />
+
+            <!-- <q-file outlined v-model="image" label="Image" class="q-mb-md" /> -->
             <q-input
               outlined
               class="q-mb-md"
               v-model="productDetails.productCode"
+              ref="barcodeInput"
               label="Product Code"
-            />
+            >
+              <template v-slot:after>
+                <q-btn @click="barcodeInput.focus()" round dense flat icon="qr_code_scanner" />
+              </template>
+            </q-input>
             <q-input
               outlined
               class="q-mb-md"
@@ -136,10 +150,30 @@
               v-model="productDetails.productDescription"
               label="Product Description"
             />
-            <q-input
+            <q-input outlined label="Product Expiry"  v-model="productDetails.dateExpiry" mask="date" :rules="['date']">
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                    <q-date v-model="productDetails.dateExpiry">
+                      <div class="row items-center justify-end">
+                        <q-btn v-close-popup label="Close" color="primary" flat />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+            <q-select
               outlined
               v-model="productDetails.category"
               label="Category"
+              :options="[
+                'Cat Food',
+                'Dog Food',
+                'Pet Medicine',
+                'Pet Accessories',
+                'Services',
+              ]"
               class="q-mb-md"
             />
             <q-input
@@ -147,8 +181,10 @@
               v-model="productDetails.quantity"
               label="Quantity"
               class="q-mb-md"
+              type="number"
             />
             <q-input
+              type="number"
               outlined
               v-model="productDetails.price"
               label="Price"
@@ -175,6 +211,7 @@ const { $api } = getCurrentInstance().appContext.config.globalProperties;
 const products = ref([]);
 const filter = ref("");
 const image = ref(null);
+const barcodeInput = ref(null);
 
 const columns = [
   { name: "image", label: "Image", field: "image", align: "left" },
@@ -213,6 +250,7 @@ const productDetails = ref({
   productCode: "",
   productName: "",
   productDescription: "",
+  dateExpiry: "",
   category: "",
   quantity: "",
   price: "",
@@ -229,6 +267,10 @@ onMounted(() => {
       console.log("error");
     });
 });
+
+async function handleAdded(files) {
+  image.value = files[0];
+}
 
 const onRowClick = (row) => {};
 
@@ -334,6 +376,7 @@ const submit = () => {
     && productDetails.value.productCode
     && productDetails.value.productName
     && productDetails.value.productDescription
+    && productDetails.value.dateExpiry
     && productDetails.value.category
     && productDetails.value.quantity
     && productDetails.value.price

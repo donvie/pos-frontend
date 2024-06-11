@@ -57,6 +57,21 @@
           </q-card-actions>
         </q-card>
       </div>
+      <div class="col-3">
+        <q-card class="my-card bg-white text-primary">
+          <q-card-section>
+            <div class="text-h6">About to expire</div>
+          </q-card-section>
+
+          <q-card-actions align="between">
+            <q-btn flat
+              ><span style="font-size: 27px">{{
+                aboutToExpire
+              }}</span></q-btn
+            >
+          </q-card-actions>
+        </q-card>
+      </div>
     </div>
 
     <div class="row q-col-gutter-md q-mt-md">
@@ -176,6 +191,7 @@
 </template>
 
 <script setup>
+import { date } from 'quasar'
 import { onMounted, ref, getCurrentInstance } from "vue";
 
 defineOptions({
@@ -188,6 +204,7 @@ const totalProductCount = ref(0);
 const soldProductTotal = ref(0);
 const lowStockTotal = ref(0);
 const outOfStockTotal = ref(0);
+const aboutToExpire = ref(0);
 const sales = ref([]);
 const products = ref([]);
 const filter = ref("");
@@ -253,12 +270,37 @@ const columns1 = [
 ];
 
 onMounted(() => {
+
+  // Sample array of objects
+// const items = [
+//   { productCode: "001", productName: "Item 1", createdAt: "2024-06-06T14:27:19.776Z" },
+//   { productCode: "002", productName: "Item 2", createdAt: "2024-06-06T14:27:19.776Z" },
+//   { productCode: "003", productName: "Item 3", createdAt: "2024-06-06T14:27:19.776Z" },
+//   { productCode: "004", productName: "Item 4", createdAt: "2024-06-06T14:27:19.776Z" }
+// ];
+
+// // Function to filter items created within the last 5 days
+// const filterExpiringItems = (items, daysUntilExpiry = 5) => {
+//   const now = new Date();
+//   const expiryDate = new Date(now.getTime() - daysUntilExpiry * 24 * 60 * 60 * 1000);
+
+//   return items.filter(item => {
+//     const createdAt = new Date(item.createdAt);
+//     return createdAt >= expiryDate && createdAt <= now;
+//   });
+// };
+
+// Filter items created within the last 5 days
+// const expiringItems = filterExpiringItems(items);
+
+// console.log('expiringItems', expiringItems);
+
   $api
     .get("/sales?pagination[limit]=5000&&sort=updatedAt:desc")
     .then((response) => {
       sales.value = response.data.data;
       soldProductTotal.value = response.data.data.reduce(
-        (a, b) => a + b.quantity,
+        (a, b) => a + (+b.buy_quantity),
         0
       );
     })
@@ -269,6 +311,7 @@ onMounted(() => {
   $api
     .get("/products?pagination[limit]=5000&sort=updatedAt:desc")
     .then((response) => {
+      console.log('responseresponse', response),
       products.value = response.data.data;
       totalProductCount.value = response.data.meta.pagination.total;
       lowStockTotal.value = response.data.data.filter(
@@ -277,6 +320,12 @@ onMounted(() => {
       outOfStockTotal.value = response.data.data.filter(
         (product) => product.quantity <= 0
       ).length;
+
+      aboutToExpire.value = response.data.data.filter((product) => {
+        const products = product.dateExpiry && date.getDateDiff(product.dateExpiry, Date.now(), 'days') <= 5
+        return products
+      }).length
+
     })
     .catch((error) => {
       console.log("error");
