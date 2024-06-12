@@ -14,6 +14,7 @@
         <div class="col text-right text-h6">Sales Total: {{salesTotal.toFixed(2)}} <br> Sales Quantity Total: {{salesQtyTotal}}</div>
       </div>
     </div>
+    <q-btn color="primary" @click="downloadPDF()" class="q-mb-md" label="Download report" icon="picture_as_pdf" />
     <q-table
       wrap-cells
       flat
@@ -76,6 +77,10 @@
 </template>
 
 <script setup>
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
 import { onMounted, ref, getCurrentInstance } from "vue";
 
 defineOptions({
@@ -124,6 +129,57 @@ const columns = [
 onMounted(() => {
   fetchSaleReport()
 });
+
+const downloadPDF = () => {
+  const tableBody = [
+    ['Product Code', 'Product Name', 'Description', 'Category', 'Quantity', 'Price', 'Buy Quantity', 'Total Price']
+  ];
+
+  let totalPrice = 0;
+
+  products.value.forEach(product => {
+    const productTotalPrice = product.price * product.buy_quantity;
+    totalPrice += productTotalPrice;
+    tableBody.push([
+      product.productCode,
+      product.productName,
+      product.productDescription,
+      product.category,
+      product.quantity,
+      product.price,
+      product.buy_quantity,
+      productTotalPrice
+    ]);
+  });
+
+  const docDefinition = {
+    content: [
+      { text: 'Sales Report', style: 'header', alignment: 'center' },
+      {
+        table: {
+          headerRows: 1,
+          widths: ['auto', 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          body: tableBody
+        }
+      }
+    ],
+    styles: {
+      header: {
+        fontSize: 18,
+        bold: true,
+        margin: [0, 0, 0, 10]
+      },
+      subheader: {
+        fontSize: 15,
+        bold: true,
+        margin: [0, 10, 0, 5]
+      },
+    },
+  };
+
+  pdfMake.createPdf(docDefinition).download('product_details.pdf');
+}
+
 
 const fetchSaleReport = () => {
   let filter = ''

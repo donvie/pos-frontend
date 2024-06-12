@@ -67,7 +67,8 @@
       <template v-slot:body="props">
         <q-tr :props="props" @click="action = 'view'; appointmentDetails = props.row;">
           <q-td key="name" :props="props">
-            {{ props.row.user.firsName }} {{ props.row.user.middleName }} {{ props.row.user.lastName }} {{ props.row.user.suffixName }}
+            <!-- <pre>{{props.row.user}}</pre> -->
+            {{ props.row.user.firstName }} {{ props.row.user.middleName }} {{ props.row.user.lastName }} {{ props.row.user.suffixName }}
           </q-td>
           <q-td key="phoneNumber" :props="props">
             {{ props.row.user.phoneNumber }}
@@ -100,9 +101,19 @@
             <q-select
               dense
               @update:model-value="submit1"
-              v-if="action !== 'book' && user.type === 'admin'"
+              v-if="action !== 'book' && user.type === 'admin' && props.row.status !== 'Approved'"
               outlined
               :options="['Pending', 'Approved', 'Done', 'Declined']"
+              label="Status"
+              :readonly="props.row.status !== 'Pending' && props.row.status !== 'Approved'"
+              v-model="props.row.status"
+            />
+            <q-select
+              dense
+              @update:model-value="submit1"
+              v-if="action !== 'book' && user.type === 'admin' && props.row.status === 'Approved'"
+              outlined
+              :options="['Done']"
               label="Status"
               :readonly="props.row.status !== 'Pending' && props.row.status !== 'Approved'"
               v-model="props.row.status"
@@ -111,7 +122,7 @@
             <q-select
               @update:model-value="submit1"
               dense
-              :readonly="props.row.status !== 'Pending' && props.row.status !== 'Approved'"
+              :readonly="props.row.status === 'Approved' || props.row.status === 'Done' || props.row.status === 'Declined' || props.row.status === 'Cancelled'"
               v-if="action !== 'book' && user.type === 'user'"
               outlined
               :options="['Cancelled']"

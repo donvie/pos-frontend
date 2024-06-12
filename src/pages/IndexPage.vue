@@ -119,6 +119,9 @@
               <q-td key="category" :props="props">
                 {{ props.row.category }}
               </q-td>
+              <q-td key="dateExpiry" :props="props">
+                {{ props.row.dateExpiry }}
+              </q-td>
               <q-td key="quantity" :props="props">
                 {{ props.row.quantity }}
               </q-td>
@@ -173,6 +176,9 @@
               <q-td key="category" :props="props">
                 {{ props.row.category }}
               </q-td>
+              <q-td key="dateExpiry" :props="props">
+                {{ props.row.dateExpiry }}
+              </q-td>
               <q-td key="buy_quantity" :props="props">
                 {{ props.row.buy_quantity }}
               </q-td>
@@ -181,6 +187,63 @@
               </q-td>
               <q-td key="quantity" :props="props">
                 {{ props.row.price * props.row.buy_quantity }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+      </div>
+      <div class="col-6">
+        <q-table
+          wrap-cells
+          :filter="filter"
+          flat
+          bordered
+          title="Products about to expire"
+          :rows="productsAboutToExpire"
+          :columns="columns"
+          row-key="productCode"
+        >
+          <template v-slot:top-right>
+            <q-input
+              borderless
+              dense
+              debounce="300"
+              v-model="filter"
+              placeholder="Search"
+            >
+              <template v-slot:append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </template>
+          <template v-slot:body="props">
+            <q-tr :props="props" @click="onRowClick(props.row)">
+              <q-td key="image" :props="props">
+                <q-img
+                  style="height: auto; width: 54px"
+                  :src="`http://localhost:1337${props.row.image}`"
+                />
+              </q-td>
+              <q-td key="productCode" :props="props">
+                {{ props.row.productCode }}
+              </q-td>
+              <q-td key="productName" :props="props">
+                {{ props.row.productName }}
+              </q-td>
+              <q-td key="productDescription" :props="props">
+                {{ props.row.productDescription }}
+              </q-td>
+              <q-td key="category" :props="props">
+                {{ props.row.category }}
+              </q-td>
+              <q-td key="dateExpiry" :props="props">
+                {{ props.row.dateExpiry }}
+              </q-td>
+              <q-td key="quantity" :props="props">
+                {{ props.row.quantity }}
+              </q-td>
+              <q-td key="price" :props="props">
+                {{ props.row.price }}
               </q-td>
             </q-tr>
           </template>
@@ -207,6 +270,7 @@ const outOfStockTotal = ref(0);
 const aboutToExpire = ref(0);
 const sales = ref([]);
 const products = ref([]);
+const productsAboutToExpire = ref([]);
 const filter = ref("");
 const filter1 = ref("");
 
@@ -235,6 +299,7 @@ const columns = [
     align: "left",
   },
   { name: "category", label: "Category", field: "category", align: "left" },
+  { name: "dateExpiry", label: "Expiry date", field: "dateExpiry", align: "left" },
   { name: "quantity", label: "Quantity", field: "quantity", align: "left" },
   { name: "price", label: "Price", field: "price", align: "left" },
 ];
@@ -264,6 +329,7 @@ const columns1 = [
     align: "left",
   },
   { name: "category", label: "Category", field: "category", align: "left" },
+  { name: "dateExpiry", label: "Expiry date", field: "dateExpiry", align: "left" },
   { name: "buy_quantity", label: "Quantity", field: "buy_quantity", align: "left" },
   { name: "price", label: "Price", field: "price", align: "left" },
   { name: "quantity", label: "Total Price", field: "quantity", align: "left" },
@@ -325,6 +391,11 @@ onMounted(() => {
         const products = product.dateExpiry && date.getDateDiff(product.dateExpiry, Date.now(), 'days') <= 5
         return products
       }).length
+
+      productsAboutToExpire.value = response.data.data.filter((product) => {
+        const products = product.dateExpiry && date.getDateDiff(product.dateExpiry, Date.now(), 'days') <= 5
+        return products
+      })
 
     })
     .catch((error) => {

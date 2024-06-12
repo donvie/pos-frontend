@@ -156,6 +156,7 @@
             </q-input>
           </div>
         </div>
+        
 
         <q-card-actions align="center" vertical>
           <q-btn
@@ -228,10 +229,10 @@ const signUp = async () => {
       middleName: middleName.value,
       lastName: lastName.value,
       suffixName: suffixName.value,
-      region: region.value,
-      province: province.value,
-      cityMunicipality: cityMunicipality.value,
-      barangay: barangay.value,
+      region: region.value.name,
+      province: province.value.name,
+      cityMunicipality: cityMunicipality.value.name,
+      barangay: barangay.value.name,
       gender: gender.value,
       address: address.value,
       phoneNumber: phoneNumber.value,

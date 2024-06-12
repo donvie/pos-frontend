@@ -154,7 +154,7 @@
               <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-date v-model="productDetails.dateExpiry">
+                    <q-date :options="enableFutureDates" v-model="productDetails.dateExpiry">
                       <div class="row items-center justify-end">
                         <q-btn v-close-popup label="Close" color="primary" flat />
                       </div>
@@ -200,13 +200,14 @@
 <script setup>
 import { onMounted, ref, getCurrentInstance } from "vue";
 
-import { useQuasar } from "quasar";
+import { date, useQuasar } from "quasar";
 
 defineOptions({
   name: "PosPage",
 });
 
 const $q = useQuasar();
+const quasarDate = date;
 const { $api } = getCurrentInstance().appContext.config.globalProperties;
 const products = ref([]);
 const filter = ref("");
@@ -271,6 +272,11 @@ onMounted(() => {
 async function handleAdded(files) {
   image.value = files[0];
 }
+
+const enableFutureDates = (date) => {
+  const timeStamp = Date.now();
+  return date >= quasarDate.formatDate(timeStamp, "YYYY/MM/DD");
+};
 
 const onRowClick = (row) => {};
 
