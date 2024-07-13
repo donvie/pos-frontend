@@ -12,7 +12,7 @@
         />
       </div>
       <div class="col-xs-12 col-sm-6 col-md-4" v-if="selectedDate">
-        <div class="q-mb-md"  v-if="user.type === 'user'">Select Time:</div>
+        <div class="q-mb-md" v-if="user.type === 'user'">Select Time:</div>
         <div class="row q-gutter-sm">
           <q-btn
             :disable="notAvailableTimes.includes(time)"
@@ -45,7 +45,7 @@
       wrap-cells
       flat
       bordered
-      title="My appointment"
+      title="Reservations"
       :rows="reservations"
       :filter="filter"
       :columns="columns"
@@ -65,10 +65,17 @@
         </q-input>
       </template>
       <template v-slot:body="props">
-        <q-tr :props="props" @click="action = 'view'; appointmentDetails = props.row;">
+        <q-tr
+          :props="props"
+          @click="
+            action = 'view';
+            appointmentDetails = props.row;
+          "
+        >
           <q-td key="name" :props="props">
             <!-- <pre>{{props.row.user}}</pre> -->
-            {{ props.row.user.firstName }} {{ props.row.user.middleName }} {{ props.row.user.lastName }} {{ props.row.user.suffixName }}
+            {{ props.row.user.firstName }} {{ props.row.user.middleName }}
+            {{ props.row.user.lastName }} {{ props.row.user.suffixName }}
           </q-td>
           <q-td key="phoneNumber" :props="props">
             {{ props.row.user.phoneNumber }}
@@ -76,7 +83,7 @@
           <q-td key="email" :props="props">
             {{ props.row.user.email }}
           </q-td>
-          <q-td key="address" :props="props">
+          <!-- <q-td key="address" :props="props">
             {{ props.row.user.address }}
           </q-td>
           <q-td key="petType" :props="props">
@@ -84,7 +91,7 @@
           </q-td>
           <q-td key="breed" :props="props">
             {{ props.row.breed }}
-          </q-td>
+          </q-td> -->
           <q-td key="petAge" :props="props">
             {{ props.row.petAge }}
           </q-td>
@@ -101,28 +108,47 @@
             <q-select
               dense
               @update:model-value="submit1"
-              v-if="action !== 'book' && user.type === 'admin' && props.row.status !== 'Approved'"
+              v-if="
+                action !== 'book' &&
+                user.type === 'admin' &&
+                props.row.status !== 'Approved'
+              "
               outlined
               :options="['Pending', 'Approved', 'Done', 'Declined']"
               label="Status"
-              :readonly="props.row.status !== 'Pending' && props.row.status !== 'Approved'"
+              :readonly="
+                props.row.status !== 'Pending' &&
+                props.row.status !== 'Approved'
+              "
               v-model="props.row.status"
             />
             <q-select
               dense
               @update:model-value="submit1"
-              v-if="action !== 'book' && user.type === 'admin' && props.row.status === 'Approved'"
+              v-if="
+                action !== 'book' &&
+                user.type === 'admin' &&
+                props.row.status === 'Approved'
+              "
               outlined
               :options="['Done']"
               label="Status"
-              :readonly="props.row.status !== 'Pending' && props.row.status !== 'Approved'"
+              :readonly="
+                props.row.status !== 'Pending' &&
+                props.row.status !== 'Approved'
+              "
               v-model="props.row.status"
             />
 
             <q-select
               @update:model-value="submit1"
               dense
-              :readonly="props.row.status === 'Approved' || props.row.status === 'Done' || props.row.status === 'Declined' || props.row.status === 'Cancelled'"
+              :readonly="
+                props.row.status === 'Approved' ||
+                props.row.status === 'Done' ||
+                props.row.status === 'Declined' ||
+                props.row.status === 'Cancelled'
+              "
               v-if="action !== 'book' && user.type === 'user'"
               outlined
               :options="['Cancelled']"
@@ -177,36 +203,42 @@
         </q-footer>
 
         <q-page-container>
-          <q-page padding class="q-col-gutter-md">
-            <q-select
+          <q-page padding class="q-col-gutter-md square-page">
+            <!-- <q-select
               outlined
               :options="['CAT', 'DOG']"
               label="Pet Type"
               v-model="appointmentDetails.petType"
               :readonly="action === 'view'"
-            />
-            <q-input
+            /> -->
+            <!-- <q-input
               outlined
               v-model="appointmentDetails.petName"
               label="Pet Name"
               :readonly="action === 'view'"
-            />
+            /> -->
             <q-select
               outlined
-              :options="['SPAY', 'VACCINATION', 'GROOMING']"
-              label="Service"
+              :options="[
+                'Brake Repair',
+                'Engine Repair',
+                'Tire Repair',
+                'Cooling System',
+                'Battery Repair',
+              ]"
+              label="Select Service"
               v-model="appointmentDetails.services"
               :readonly="action === 'view'"
             />
-            <q-input
+            <!-- <q-input
               outlined
               v-model="appointmentDetails.breed"
               label="Breed"
               :readonly="action === 'view'"
-            />
+            /> -->
             <q-input
               outlined
-              label="Pet Age"
+              label="Problem Description"
               v-model="appointmentDetails.petAge"
               :readonly="action === 'view'"
             />
@@ -228,19 +260,25 @@
               outlined
               :options="['Pending', 'Approved', 'Done', 'Declined']"
               label="Status"
-              :readonly="appointmentDetails.status !== 'Pending' && appointmentDetails.status !== 'Approved'"
+              :readonly="
+                appointmentDetails.status !== 'Pending' &&
+                appointmentDetails.status !== 'Approved'
+              "
               v-model="appointmentDetails.status"
             />
 
             <q-select
-              :readonly="appointmentDetails.status !== 'Pending' && appointmentDetails.status !== 'Approved'"
+              :readonly="
+                appointmentDetails.status !== 'Pending' &&
+                appointmentDetails.status !== 'Approved'
+              "
               v-if="action !== 'book' && user.type === 'user'"
               outlined
               :options="['Cancelled']"
               label="Status"
               v-model="appointmentDetails.status"
             />
-            
+
             <!-- <q-input
               outlined
               v-if="appointmentDetails.status === 'Cancelled'"
@@ -276,14 +314,14 @@ const columns = [
     sortable: true,
     align: "left",
   },
-  {
-    name: "phoneNumber",
-    align: "phoneNumber",
-    label: "Phone Number",
-    field: "phoneNumber",
-    sortable: true,
-    align: "left",
-  },
+  // {
+  //   name: "phoneNumber",
+  //   align: "phoneNumber",
+  //   label: "Phone Number",
+  //   field: "phoneNumber",
+  //   sortable: true,
+  //   align: "left",
+  // },
   {
     name: "email",
     label: "Email",
@@ -291,10 +329,15 @@ const columns = [
     sortable: true,
     align: "left",
   },
-  { name: "address", label: "Address", field: "address", align: "left" },
-  { name: "petType", label: "Pet Type", field: "petType", align: "left" },
-  { name: "breed", label: "Breed", field: "breed", align: "left" },
-  { name: "petAge", label: "Pet Age", field: "petAge", align: "left" },
+  // { name: "address", label: "Address", field: "address", align: "left" },
+  // { name: "petType", label: "Pet Type", field: "petType", align: "left" },
+  // { name: "breed", label: "Breed", field: "breed", align: "left" },
+  {
+    name: "petAge",
+    label: "Problem Description",
+    field: "petAge",
+    align: "left",
+  },
   { name: "services", label: "Services", field: "services", align: "left" },
   { name: "date", label: "Date", field: "date", align: "left" },
   { name: "time", label: "Time", field: "time", align: "left" },
@@ -307,16 +350,16 @@ const action = ref("");
 const notAvailableTimes = ref([]);
 
 const appointmentDetails = ref({
-  petType: "",
-  petName: "",
-  breed: "",
+  // petType: "",
+  // petName: "",
+  // breed: "",
   petAge: "",
   services: "",
   status: "",
 });
 
 onMounted(() => {
-  fethcReservation()
+  fethcReservation();
 
   fetchTime(quasarDate.formatDate(Date.now(), "YYYY-MM-DD"));
 });
@@ -342,12 +385,12 @@ const fethcReservation = () => {
     .catch((error) => {
       console.log("error", error);
     });
-}
+};
 
 const generateAvailableTimes = computed(() => {
   const times = [];
   const startHour = 8;
-  const endHour = 17;
+  const endHour = 20;
   for (let hour = startHour; hour <= endHour; hour++) {
     times.push(formatTime(hour, 0));
     // times.push(formatTime(hour, 30));
@@ -393,10 +436,11 @@ const submit1 = () => {
 };
 
 const submit = () => {
-  if (appointmentDetails.value.petType &&
+  if (
+    // appointmentDetails.value.petType &&
     appointmentDetails.value.services &&
-    appointmentDetails.value.petName &&
-    appointmentDetails.value.breed &&
+    // appointmentDetails.value.petName &&
+    // appointmentDetails.value.breed &&
     appointmentDetails.value.petAge
     // appointmentDetails.value.ownerName &&
     // appointmentDetails.value.ownerAddress
@@ -438,10 +482,10 @@ const submit = () => {
 const bookNow = async (row) => {
   const payload = {
     data: {
-      petType: appointmentDetails.value.petType,
-      breed: appointmentDetails.value.breed,
+      // petType: appointmentDetails.value.petType,
+      // breed: appointmentDetails.value.breed,
       petAge: appointmentDetails.value.petAge,
-      petName: appointmentDetails.value.petName,
+      // petName: appointmentDetails.value.petName,
       services: appointmentDetails.value.services,
       // ownerName: appointmentDetails.value.ownerName,
       // ownerAddress: appointmentDetails.value.ownerAddress,
@@ -465,9 +509,9 @@ const bookNow = async (row) => {
 };
 
 const updateAppointment = async () => {
-  let payload = {}
+  let payload = {};
 
-  if (user.type === 'admin') {
+  if (user.type === "admin") {
     payload = {
       data: {
         isViewed: true,
@@ -476,7 +520,7 @@ const updateAppointment = async () => {
     };
   }
 
-  if (user.type === 'user') {
+  if (user.type === "user") {
     payload = {
       data: {
         status: appointmentDetails.value.status,
@@ -503,9 +547,11 @@ const fetchTime = (value, reason, details) => {
   console.log("value", reason);
   console.log("details", details);
   $api
-    .get(`/reservations?pagination[limit]=5000&filters[date][$eq]=${value}&filters[$or][0][status][$eq]=Pending&filters[$or][1][status][$eq]=Approved&&filters[$or][1][status][$eq]=Done`)
+    .get(
+      `/reservations?pagination[limit]=5000&filters[date][$eq]=${value}&filters[$or][0][status][$eq]=Pending&filters[$or][1][status][$eq]=Approved&&filters[$or][1][status][$eq]=Done`
+    )
     .then((response) => {
-      console.log('ress', response.data)
+      console.log("ress", response.data);
       notAvailableTimes.value = response.data.data.map(
         (reservation) => reservation.time
       );

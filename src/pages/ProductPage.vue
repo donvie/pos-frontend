@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <q-btn
-      label="Add product"
+      label="Add Items"
       @click="
         productDetails = {};
         action = 'Add';
@@ -48,9 +48,9 @@
           <q-td key="productName" :props="props">
             {{ props.row.productName }}
           </q-td>
-          <q-td key="productDescription" :props="props">
+          <!-- <q-td key="productDescription" :props="props">
             {{ props.row.productDescription }}
-          </q-td>
+          </q-td> -->
           <q-td key="category" :props="props">
             {{ props.row.category }}
           </q-td>
@@ -118,7 +118,7 @@
               />
             </q-card>
             <q-uploader
-              label="Image"
+              label="Item Image"
               @added="handleAdded"
               class="q-mb-md"
               style="width: 100%"
@@ -132,50 +132,74 @@
               class="q-mb-md"
               v-model="productDetails.productCode"
               ref="barcodeInput"
-              label="Product Code"
+              label="Item Code"
             >
               <template v-slot:after>
-                <q-btn @click="barcodeInput.focus()" round dense flat icon="qr_code_scanner" />
+                <q-btn
+                  @click="barcodeInput.focus()"
+                  round
+                  dense
+                  flat
+                  icon="qr_code_scanner"
+                />
               </template>
             </q-input>
             <q-input
               outlined
               class="q-mb-md"
               v-model="productDetails.productName"
-              label="Product Name"
+              label="Item Name"
             />
-            <q-input
+            <!-- <q-input
               outlined
               class="q-mb-md"
               v-model="productDetails.productDescription"
               label="Product Description"
-            />
-            <q-input outlined label="Product Expiry"  v-model="productDetails.dateExpiry" mask="date" :rules="['date']">
+            /> -->
+            <!-- <q-input
+              outlined
+              label="Product Expiry"
+              v-model="productDetails.dateExpiry"
+              mask="date"
+              :rules="['date']"
+            >
               <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                    <q-date :options="enableFutureDates" v-model="productDetails.dateExpiry">
+                  <q-popup-proxy
+                    cover
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date
+                      :options="enableFutureDates"
+                      v-model="productDetails.dateExpiry"
+                    >
                       <div class="row items-center justify-end">
-                        <q-btn v-close-popup label="Close" color="primary" flat />
+                        <q-btn
+                          v-close-popup
+                          label="Close"
+                          color="primary"
+                          flat
+                        />
                       </div>
                     </q-date>
                   </q-popup-proxy>
                 </q-icon>
               </template>
-            </q-input>
-            <q-select
+            </q-input> -->
+            <!-- <q-select
               outlined
               v-model="productDetails.category"
               label="Category"
               :options="[
-                'Cat Food',
-                'Dog Food',
-                'Pet Medicine',
-                'Pet Accessories',
-                'Services',
+                'Brake Repair',
+                'Engine Repair',
+                'Tire Repair',
+                'Cooling System',
+                'Battery Repair',
               ]"
               class="q-mb-md"
-            />
+            /> -->
             <q-input
               outlined
               v-model="productDetails.quantity"
@@ -231,13 +255,13 @@ const columns = [
     sortable: true,
     align: "left",
   },
-  {
-    name: "productDescription",
-    label: "Product Description",
-    field: "productDescription",
-    sortable: true,
-    align: "left",
-  },
+  // {
+  //   name: "productDescription",
+  //   label: "Product Description",
+  //   field: "productDescription",
+  //   sortable: true,
+  //   align: "left",
+  // },
   { name: "category", label: "Category", field: "category", align: "left" },
   { name: "quantity", label: "Quantity", field: "quantity", align: "left" },
   { name: "price", label: "Price", field: "price", align: "left" },
@@ -250,8 +274,8 @@ const action = ref("");
 const productDetails = ref({
   productCode: "",
   productName: "",
-  productDescription: "",
-  dateExpiry: "",
+  // productDescription: "",
+  // dateExpiry: "",
   category: "",
   quantity: "",
   price: "",
@@ -378,17 +402,18 @@ const deleteProduct = async (row) => {
 };
 
 const submit = () => {
-  if ((action.value === 'Add' ? image.value : true)
-    && productDetails.value.productCode
-    && productDetails.value.productName
-    && productDetails.value.productDescription
-    && productDetails.value.dateExpiry
-    && productDetails.value.category
-    && productDetails.value.quantity
-    && productDetails.value.price
+  if (
+    (action.value === "Add" ? image.value : true) &&
+    productDetails.value.productCode &&
+    productDetails.value.productName &&
+    // productDetails.value.productDescription &&
+    // productDetails.value.dateExpiry &&
+    productDetails.value.category &&
+    productDetails.value.quantity &&
+    productDetails.value.price
   ) {
     if (action.value === "Add") {
-        addProduct();
+      addProduct();
     } else if (action.value === "Edit") {
       editProduct();
     }

@@ -1,119 +1,72 @@
 <template>
   <q-page padding>
-    <q-table
-      wrap-cells
-      flat
-      bordered
-      title="Sold Products"
-      :rows="products"
-      :columns="columns"
-      row-key="productCode"
-      :filter="filter"
-    >
-      <template v-slot:top-right>
-        <q-input
-          borderless
-          dense
-          debounce="300"
-          v-model="filter"
-          placeholder="Search"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
-      <template v-slot:body="props">
-        <q-tr :props="props" @click="onRowClick(props.row)">
-          <q-td key="image" :props="props">
-            <q-img
-              style="height: auto; width: 54px"
-              :src="`http://localhost:1337${props.row.image}`"
-            />
-          </q-td>
-          <q-td key="productCode" :props="props">
-            {{ props.row.productCode }}
-          </q-td>
-          <q-td key="productName" :props="props">
-            {{ props.row.productName }}
-          </q-td>
-          <q-td key="productDescription" :props="props">
-            {{ props.row.productDescription }}
-          </q-td>
-          <q-td key="category" :props="props">
-            {{ props.row.category }}
-          </q-td>
-          <q-td key="buy_quantity" :props="props">
-            {{ props.row.buy_quantity }}
-          </q-td>
-          <q-td key="price" :props="props">
-            {{ props.row.price }}
-          </q-td>
-          <q-td key="quantity" :props="props">
-            {{ props.row.price * props.row.buy_quantity }}
-          </q-td>
-          <!-- <q-td key="_id" :props="props">
-            <q-btn label="Add" dense />
-          </q-td> -->
-        </q-tr>
-      </template>
-    </q-table>
+    <div class="row q-col-gutter-md">
+      <div class="col-4">
+        <q-card class="my-card bg-white text-primary">
+          <q-card-section>
+            <div class="text-h4">ADDRESS</div>
+          </q-card-section>
+          <br />
+          <br />
+          <br />
+          <q-card-section>
+            <div class="text-h5">
+              118 MotorShop Baliti City of Sanfernando Pampanga
+            </div>
+          </q-card-section>
+          <br />
+          <q-card-section>
+            <div class="text-h5">
+              118 MotorShopPanipuan City of Sanfernando Pampanga
+            </div>
+          </q-card-section>
+          <br />
+          <br />
+          <br />
+        </q-card>
+      </div>
+      <div class="col-4">
+        <q-card class="my-card bg-white text-primary">
+          <q-card-section>
+            <div class="text-h4">OPEN HOURS</div>
+          </q-card-section>
+          <br />
+          <q-card-section>
+            <div class="text-h5">Monday - Tuesday 8 am - 8pm</div>
+          </q-card-section>
+          <q-card-section>
+            <div class="text-h5">Friday 8 am - 6pm</div>
+          </q-card-section>
+          <q-card-section>
+            <div class="text-h5">Saturday 9 am - 4pm</div>
+          </q-card-section>
+          <q-card-section>
+            <div class="text-h5">Sunday Closed</div>
+          </q-card-section>
+        </q-card>
+      </div>
+      <div class="col-4">
+        <q-card class="my-card bg-white text-primary">
+          <q-card-section>
+            <div class="text-h4">CUSTOMER SUPPPORT</div>
+          </q-card-section>
+          <br />
+          <q-card-section>
+            <div class="text-h5">+63 938302471</div>
+          </q-card-section>
+          <br />
+          <q-card-section>
+            <div class="text-h5">+63 938302471</div>
+          </q-card-section>
+          <q-card-section>
+            <div class="text-h5">118MotorShop@email.com</div>
+          </q-card-section>
+          <br />
+          <br />
+        </q-card>
+      </div>
+    </div>
   </q-page>
 </template>
 
-<script setup>
-import { onMounted, ref, getCurrentInstance } from "vue";
-
-defineOptions({
-  name: "PosPage",
-});
-
-const { $api } = getCurrentInstance().appContext.config.globalProperties;
-const products = ref([]);
-const filter = ref("");
-
-const columns = [
-  { name: "image", label: "Image", field: "image", align: "left" },
-  {
-    name: "productCode",
-    required: true,
-    label: "Product Code",
-    sortable: true,
-    align: "left",
-  },
-  {
-    name: "productName",
-    align: "productName",
-    label: "Product Name",
-    field: "productName",
-    sortable: true,
-    align: "left",
-  },
-  {
-    name: "productDescription",
-    label: "Product Description",
-    field: "productDescription",
-    sortable: true,
-    align: "left",
-  },
-  { name: "category", label: "Category", field: "category", align: "left" },
-  { name: "buy_quantity", label: "Quantity", field: "buy_quantity", align: "left" },
-  { name: "price", label: "Price", field: "price", align: "left" },
-  { name: "quantity", label: "Total Price", field: "quantity", align: "left" },
-  // { name: "_id", label: "Action", field: "_id", align: "left" },
-];
-
-onMounted(() => {
-  $api
-    .get("/sales?pagination[limit]=5000&sort=updatedAt:desc")
-    .then((response) => {
-      console.log(response.data.data);
-      products.value = response.data.data;
-    })
-    .catch((error) => {
-      console.log("error");
-    });
-});
-
-const onRowClick = (row) => {};
-</script>
+<script setup></script>

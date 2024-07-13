@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf" style="background: #eaebef">
-    <q-header outlined>
+    <!-- <q-header outlined>
       <q-toolbar style="height: 60px">
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
 
@@ -13,7 +13,7 @@
           PET MATTERS
         </q-toolbar-title>
       </q-toolbar>
-    </q-header>
+    </q-header> -->
 
     <q-drawer
       v-model="drawer"
@@ -28,6 +28,13 @@
     >
       <q-scroll-area class="fit" :horizontal-thumb-style="{ opacity: 0 }">
         <q-list padding>
+          <div class="q-pa-md text-center" style="background-color: oldlace">
+            <img
+              src="https://dev-118-motor-shop.pantheonsite.io/wp-content/uploads/2022/07/TIREEEE-2.png"
+              alt="Logo"
+              style="max-width: 100%"
+            />
+          </div>
           <q-item
             v-if="user.type === 'admin'"
             exact-active-class="bg-blue-10 text-white"
@@ -37,10 +44,10 @@
             v-ripple
           >
             <q-item-section avatar>
-              <q-icon name="dashboard" />
+              <q-icon name="home" />
             </q-item-section>
 
-            <q-item-section>Dashboard</q-item-section>
+            <q-item-section>Home</q-item-section>
           </q-item>
 
           <q-item
@@ -48,14 +55,14 @@
             exact
             to="/pos"
             clickable
-            v-if="user.type === 'cashier'"
+            v-if="user.type === 'admin'"
             v-ripple
           >
             <q-item-section avatar>
               <q-icon name="list_alt" />
             </q-item-section>
 
-            <q-item-section>POS </q-item-section>
+            <q-item-section>Shop</q-item-section>
           </q-item>
 
           <q-item
@@ -67,10 +74,10 @@
             v-ripple
           >
             <q-item-section avatar>
-              <q-icon name="inventory_2" />
+              <q-icon name="storage" />
             </q-item-section>
 
-            <q-item-section>Products</q-item-section>
+            <q-item-section>Items</q-item-section>
           </q-item>
 
           <q-item
@@ -82,10 +89,10 @@
             v-if="user.type === 'admin'"
           >
             <q-item-section avatar>
-              <q-icon name="payments" />
+              <q-icon name="phone" />
             </q-item-section>
 
-            <q-item-section>Sales</q-item-section>
+            <q-item-section>Contact us</q-item-section>
           </q-item>
 
           <q-item
@@ -94,7 +101,7 @@
             to="/sales-report"
             clickable
             v-ripple
-            v-if="user.type === 'admin'"
+            v-if="user.type === ''"
           >
             <q-item-section avatar>
               <q-icon name="grid_view" />
@@ -112,13 +119,24 @@
             v-ripple
           >
             <q-item-section avatar>
-              <q-icon v-if="!miniState" name="event_available" />
-              <q-btn v-if="miniState" flat dense icon="event_available">
-                <q-badge v-if="user.type === 'admin'" color="red" floating>{{reservationNewCount}}</q-badge>
+              <q-icon v-if="!miniState" name="event" />
+              <q-btn v-if="miniState" flat dense icon="event">
+                <q-badge v-if="user.type === 'admin'" color="red" floating>{{
+                  reservationNewCount
+                }}</q-badge>
               </q-btn>
             </q-item-section>
 
-            <q-item-section><div>My Appointment <span class="text-weight-bold text-blue" v-if="user.type === 'admin'">({{reservationNewCount}})</span></div></q-item-section>
+            <q-item-section
+              ><div>
+                Reservations
+                <span
+                  class="text-weight-bold text-blue"
+                  v-if="user.type === 'admin'"
+                  >({{ reservationNewCount }})</span
+                >
+              </div></q-item-section
+            >
           </q-item>
 
           <q-item
@@ -165,7 +183,7 @@ let user = $q.localStorage.getItem("user");
 const leftDrawerOpen = ref(false);
 
 onMounted(() => {
-  fethcReservation()
+  fethcReservation();
 
   if (user.type === "user") {
     $router.push("/my-appointment");
@@ -184,14 +202,13 @@ const fethcReservation = () => {
   $api
     .get(url)
     .then((response) => {
-      reservationNewCount.value = response.data.meta.pagination.total
-      console.log('dads', response)
+      reservationNewCount.value = response.data.meta.pagination.total;
+      console.log("dads", response);
     })
     .catch((error) => {
       console.log("error", error);
     });
-}
-
+};
 
 const logOut = () => {
   $q.dialog({

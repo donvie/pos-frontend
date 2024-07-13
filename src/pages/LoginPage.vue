@@ -7,8 +7,8 @@
         class="q-gutter-md text-center"
       >
         <q-img
-          style="height: 144px; width: 144px"
-          src="https://pngfre.com/wp-content/uploads/Cat-Paw-Print-10.png"
+          style="height: 60px; width: 300px"
+          src="https://dev-118-motor-shop.pantheonsite.io/wp-content/uploads/2022/07/TIREEEE-2.png"
         />
         <q-input
           filled
@@ -17,6 +17,7 @@
           label="Email"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Email cannot be empty']"
+          rounded
         />
 
         <q-input
@@ -27,6 +28,7 @@
           :rules="[
             (val) => (val && val.length > 0) || 'Password cannot be empty',
           ]"
+          rounded
         >
           <template v-slot:append>
             <q-icon
@@ -42,6 +44,7 @@
             class="full-width q-mb-md"
             type="submit"
             label="Login"
+            rounded
           />
           <q-btn
             class="full-width"
@@ -50,6 +53,7 @@
             flat
             color="primary"
             label="Create an account"
+            rounded
           />
         </q-card-actions>
       </q-form>
@@ -97,9 +101,9 @@ const onSubmit = () => {
 
       if (user.type === "admin") {
         $router.push("/");
-      } else if (user.type === 'user') {
+      } else if (user.type === "user") {
         $router.push("/my-appointment");
-      } else if (user.type === 'cashier') {
+      } else if (user.type === "cashier") {
         $router.push("/pos");
       }
     })
