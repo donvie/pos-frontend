@@ -2,7 +2,7 @@
   <q-page padding>
     <div class="row q-col-gutter-md">
       <div class="col-7">
-        <!-- <div class="q-mb-md">
+        <div class="q-mb-md">
           <q-input
             filled
             v-model="barcode"
@@ -21,7 +21,7 @@
             </template>
           </q-input>
           <div v-if="barcode">Scanned Barcode: {{ barcode }}</div>
-        </div> -->
+        </div>
         <q-table
           wrap-cells
           flat
@@ -150,9 +150,9 @@
         </q-table>
 
         <q-card class="q-mt-md">
-          <!-- <q-card-section>
+          <q-card-section>
             <q-input type="number" v-model="payment" label="Cash Payment" />
-          </q-card-section> -->
+          </q-card-section>
           <q-card-section class="q-py-xs">
             <div class="text-h6">
               Total Price:
@@ -263,12 +263,12 @@
           </q-table>
         </q-card-section>
 
-        <!-- <q-card-section class="q-py-none">
+        <q-card-section class="q-py-none">
           <div class="text-h6">
             Payment:
             {{ payment }}
           </div>
-        </q-card-section> -->
+        </q-card-section>
         <q-card-section class="q-py-none">
           <div class="text-h6">
             Total Price:
@@ -279,7 +279,7 @@
             }}
           </div>
         </q-card-section>
-        <!-- <q-card-section class="q-py-none">
+        <q-card-section class="q-py-none">
           <div class="text-h6">
             Change:
             {{
@@ -291,10 +291,9 @@
                   ).toFixed(2)
             }}
           </div>
-        </q-card-section> -->
+        </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn label="Close" outline @click="alert = false" color="primary" />
           <q-btn label="Proceed" @click="saveToSale()" color="primary" />
         </q-card-actions>
       </q-card>
@@ -324,7 +323,6 @@ const filter1 = ref("");
 const alert = ref(false);
 const barcode = ref("");
 const barcodeInput = ref(null);
-let user = $q.localStorage.getItem("user");
 
 const columns = [
   { name: "image", label: "Image", field: "image", align: "left" },
@@ -417,7 +415,7 @@ const columns2 = [
 ];
 
 onMounted(() => {
-  // barcodeInput.value.focus();
+  barcodeInput.value.focus();
   fetchProducts();
 });
 
@@ -462,24 +460,24 @@ const generatePdf = (products, cashPayment, totalPrice, change) => {
         style: "subheader",
         margin: [0, 20, 0, 10],
       },
-      // {
-      //   columns: [
-      //     { text: `Cash Payment:`, style: "paymentDetailLabel" },
-      //     { text: `${cashPayment}`, style: "paymentDetailValue" },
-      //   ],
-      // },
+      {
+        columns: [
+          { text: `Cash Payment:`, style: "paymentDetailLabel" },
+          { text: `${cashPayment}`, style: "paymentDetailValue" },
+        ],
+      },
       {
         columns: [
           { text: `Total Price:`, style: "paymentDetailLabel" },
           { text: `${totalPrice}`, style: "paymentDetailValue" },
         ],
       },
-      // {
-      //   columns: [
-      //     { text: `Change:`, style: "paymentDetailLabel" },
-      //     { text: `${change}`, style: "paymentDetailValue" },
-      //   ],
-      // },
+      {
+        columns: [
+          { text: `Change:`, style: "paymentDetailLabel" },
+          { text: `${change}`, style: "paymentDetailValue" },
+        ],
+      },
     ],
     styles: {
       mainHeader: {
@@ -607,38 +605,6 @@ const proceedToSaveSale = async (row) => {
   });
 };
 
-const proceedToSaveOrder = async (row) => {
-  console.log("orders.value", orders.value);
-  try {
-    const payload = {
-      data: {
-        user: user.id,
-        orders: orders.value,
-        status: "Pending",
-      },
-    };
-
-    const response = await $api.post("/orders", payload);
-    // fetchProducts();
-  } catch (error) {
-    console.log("error", error);
-  }
-
-  // const totalPrice = orders.value
-  //   .reduce((a, b) => a + b.price * b.buy_quantity, 0)
-  //   .toFixed(2);
-  // const change = payment.value - totalPrice;
-  // generatePdf(orders.value, payment.value, totalPrice, change.toFixed(2));
-
-  orders.value = [];
-  payment.value = 0;
-  alert.value = false;
-  $q.notify({
-    type: "positive",
-    message: "Success!",
-  });
-};
-
 const saveToSale = async () => {
   $q.dialog({
     title: "Confirm",
@@ -654,8 +620,7 @@ const saveToSale = async () => {
     persistent: true,
   })
     .onOk(() => {
-      // proceedToSaveSale();
-      proceedToSaveOrder();
+      proceedToSaveSale();
       // console.log('>>>> secondn OK catcher')
     })
     .onCancel(() => {

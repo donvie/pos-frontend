@@ -21,6 +21,10 @@ const routes = [
         path: "my-appointment",
         component: () => import("src/pages/AppointmentPage.vue"),
       },
+      {
+        path: "orders",
+        component: () => import("src/pages/OrderPage.vue"),
+      },
     ],
     meta: { requiresAuth: true },
   },

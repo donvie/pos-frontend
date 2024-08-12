@@ -8,13 +8,27 @@
         <q-input type="date" outlined label="End date" v-model="endDate" />
       </div>
       <div class="col-2 row items-center">
-        <q-btn unelevate color="primary" label="Update report" @click="fetchSaleReport()"  />
+        <q-btn
+          unelevate
+          color="primary"
+          label="Update report"
+          @click="fetchSaleReport()"
+        />
       </div>
       <div class="col-4 row items-center">
-        <div class="col text-right text-h6">Sales Total: {{salesTotal.toFixed(2)}} <br> Sales Quantity Total: {{salesQtyTotal}}</div>
+        <div class="col text-right text-h6">
+          Sales Total: {{ salesTotal.toFixed(2) }} <br />
+          Sales Quantity Total: {{ salesQtyTotal }}
+        </div>
       </div>
     </div>
-    <q-btn color="primary" @click="downloadPDF()" class="q-mb-md" label="Download report" icon="picture_as_pdf" />
+    <q-btn
+      color="primary"
+      @click="downloadPDF()"
+      class="q-mb-md"
+      label="Download report"
+      icon="picture_as_pdf"
+    />
     <q-table
       wrap-cells
       flat
@@ -120,24 +134,38 @@ const columns = [
     align: "left",
   },
   { name: "category", label: "Category", field: "category", align: "left" },
-  { name: "buy_quantity", label: "Quantity", field: "buy_quantity", align: "left" },
+  {
+    name: "buy_quantity",
+    label: "Quantity",
+    field: "buy_quantity",
+    align: "left",
+  },
   { name: "price", label: "Price", field: "price", align: "left" },
   { name: "quantity", label: "Total Price", field: "quantity", align: "left" },
   // { name: "_id", label: "Action", field: "_id", align: "left" },
 ];
 
 onMounted(() => {
-  fetchSaleReport()
+  fetchSaleReport();
 });
 
 const downloadPDF = () => {
   const tableBody = [
-    ['Product Code', 'Product Name', 'Description', 'Category', 'Quantity', 'Price', 'Buy Quantity', 'Total Price']
+    [
+      "Product Code",
+      "Product Name",
+      "Description",
+      "Category",
+      "Quantity",
+      "Price",
+      "Buy Quantity",
+      "Total Price",
+    ],
   ];
 
   let totalPrice = 0;
 
-  products.value.forEach(product => {
+  products.value.forEach((product) => {
     const productTotalPrice = product.price * product.buy_quantity;
     totalPrice += productTotalPrice;
     tableBody.push([
@@ -148,45 +176,44 @@ const downloadPDF = () => {
       product.quantity,
       product.price,
       product.buy_quantity,
-      productTotalPrice
+      productTotalPrice,
     ]);
   });
 
   const docDefinition = {
     content: [
-      { text: 'Sales Report', style: 'header', alignment: 'center' },
+      { text: "Sales Report", style: "header", alignment: "center" },
       {
         table: {
           headerRows: 1,
-          widths: ['auto', 'auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto'],
-          body: tableBody
-        }
-      }
+          widths: ["auto", "auto", "*", "auto", "auto", "auto", "auto", "auto"],
+          body: tableBody,
+        },
+      },
     ],
     styles: {
       header: {
         fontSize: 18,
         bold: true,
-        margin: [0, 0, 0, 10]
+        margin: [0, 0, 0, 10],
       },
       subheader: {
         fontSize: 15,
         bold: true,
-        margin: [0, 10, 0, 5]
+        margin: [0, 10, 0, 5],
       },
     },
   };
 
-  pdfMake.createPdf(docDefinition).download('product_details.pdf');
-}
-
+  pdfMake.createPdf(docDefinition).download("product_details.pdf");
+};
 
 const fetchSaleReport = () => {
-  let filter = ''
+  let filter = "";
   if (startDate.value && endDate.value) {
-    filter = `/sales?pagination[limit]=5000&sort=updatedAt:desc&filters[createdAt][$gte]=${startDate.value}&filters[createdAt][$lte]=${endDate.value}`
+    filter = `/sales?pagination[limit]=5000&sort=updatedAt:desc&filters[createdAt][$gte]=${startDate.value}&filters[createdAt][$lte]=${endDate.value}`;
   } else {
-    filter = `/sales?pagination[limit]=5000&sort=updatedAt:desc`
+    filter = `/sales?pagination[limit]=5000&sort=updatedAt:desc`;
   }
 
   $api
@@ -195,18 +222,18 @@ const fetchSaleReport = () => {
       console.log(response.data.data);
       products.value = response.data.data;
       salesTotal.value = response.data.data.reduce(
-        (a, b) => a + (+b.buy_quantity) * b.price,
+        (a, b) => a + +b.buy_quantity * b.price,
         0
       );
       salesQtyTotal.value = response.data.data.reduce(
-        (a, b) => a + (+b.buy_quantity),
+        (a, b) => a + +b.buy_quantity,
         0
       );
     })
     .catch((error) => {
       console.log("error");
     });
-}
+};
 
 const onRowClick = (row) => {};
 </script>

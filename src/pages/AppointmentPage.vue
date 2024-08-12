@@ -1,15 +1,52 @@
 <template>
   <q-page padding>
-    <div class="row q-pa-md q-col-gutter-md" v-if="user.type === 'user'">
+    <div class="row q-pa-md q-col-gutter-xl" v-if="user.type === 'user'">
       <div class="col-xs-12 col-sm-6 col-md-5 text-center">
-        <q-date
-          v-model="selectedDate"
-          mask="YYYY-MM-DD"
-          format="YYYY-MM-DD"
-          @update:model-value="fetchTime"
-          label="Select Date"
-          :options="enableFutureDates"
-        />
+        <q-input filled v-model="selectedDate">
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date
+                  v-model="selectedDate"
+                  mask="YYYY-MM-DD"
+                  format="YYYY-MM-DD"
+                  @update:model-value="fetchTime"
+                  label="Select Date"
+                  :options="enableFutureDates"
+                >
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+                <!-- <q-date v-model="date" mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date> -->
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+
+          <!-- <template v-slot:append>
+            <q-icon name="access_time" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-time v-model="date" mask="YYYY-MM-DD HH:mm" format24h>
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-time>
+              </q-popup-proxy>
+            </q-icon>
+          </template> -->
+        </q-input>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-4" v-if="selectedDate">
         <div class="q-mb-md" v-if="user.type === 'user'">Select Time:</div>
@@ -74,14 +111,14 @@
         >
           <q-td key="name" :props="props">
             <!-- <pre>{{props.row.user}}</pre> -->
-            {{ props.row.user.firstName }} {{ props.row.user.middleName }}
-            {{ props.row.user.lastName }} {{ props.row.user.suffixName }}
+            {{ props.row?.user?.firstName }} {{ props.row?.user?.middleName }}
+            {{ props.row?.user?.lastName }} {{ props.row?.user?.suffixName }}
           </q-td>
           <q-td key="phoneNumber" :props="props">
             {{ props.row.user.phoneNumber }}
           </q-td>
           <q-td key="email" :props="props">
-            {{ props.row.user.email }}
+            {{ props.row?.user?.email }}
           </q-td>
           <!-- <q-td key="address" :props="props">
             {{ props.row.user.address }}

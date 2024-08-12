@@ -36,7 +36,6 @@
             />
           </div>
           <q-item
-            v-if="user.type === 'admin'"
             exact-active-class="bg-blue-10 text-white"
             exact
             to="/"
@@ -55,7 +54,7 @@
             exact
             to="/pos"
             clickable
-            v-if="user.type === 'admin'"
+            v-if="user.type === 'user'"
             v-ripple
           >
             <q-item-section avatar>
@@ -63,6 +62,20 @@
             </q-item-section>
 
             <q-item-section>Shop</q-item-section>
+          </q-item>
+
+          <q-item
+            exact-active-class="bg-blue-10 text-white"
+            exact
+            to="/orders"
+            clickable
+            v-ripple
+          >
+            <q-item-section avatar>
+              <q-icon name="shopping_bag" />
+            </q-item-section>
+
+            <q-item-section>Orders</q-item-section>
           </q-item>
 
           <q-item
@@ -86,7 +99,6 @@
             to="/sale"
             clickable
             v-ripple
-            v-if="user.type === 'admin'"
           >
             <q-item-section avatar>
               <q-icon name="phone" />

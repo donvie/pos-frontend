@@ -23,6 +23,12 @@
           <br />
           <br />
           <br />
+          <div
+            style="height: 250px"
+            class="q-mt-md"
+            ref="mapContainer"
+            id="map"
+          ></div>
         </q-card>
       </div>
       <div class="col-4">
@@ -69,4 +75,48 @@
   </q-page>
 </template>
 
-<script setup></script>
+<script setup>
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { onMounted, ref, watchEffect } from "vue";
+
+let map;
+const markers = new Map();
+const mapContainer = ref(null);
+
+// Define custom icon
+const customIcon = new L.Icon({
+  iconUrl: "images/marker-icon.png",
+  iconRetinaUrl: "images/marker-icon-2x.png",
+  shadowUrl: "images/marker-shadow.png",
+  iconSize: [25, 41], // size of the icon
+  iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
+  popupAnchor: [1, -34], // point from which the popup should open relative to the iconAnchor
+  shadowSize: [41, 41], // size of the shadow
+});
+
+onMounted(() => {
+  initializeMap();
+});
+
+const initializeMap = () => {
+  const philippinesCoordinates = [15.1014211, 120.6197289];
+  map = L.map(mapContainer.value).setView(philippinesCoordinates, 9);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+  // Add a marker at the coordinates
+  const marker = L.marker(philippinesCoordinates, { icon: customIcon }).addTo(
+    map
+  );
+  marker
+    .bindPopup("<b>118 MotorShop</b><br>City of Sanfernando, Pampanga.")
+    .openPopup();
+};
+</script>
+
+<style>
+#map {
+  width: 100%;
+  height: 650px;
+}
+</style>

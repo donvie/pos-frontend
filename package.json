@@ -26,6 +26,8 @@
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
+    "@vue-leaflet/vue-leaflet": "^0.10.1",
+    "leaflet": "^1.9.4",
     "@babel/eslint-parser": "^7.13.14",
     "@quasar/app-webpack": "^3.9.2",
     "eslint": "^8.11.0",
